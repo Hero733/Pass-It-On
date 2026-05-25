@@ -3,167 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pass It On @ NTUN | iOS 27 Fluid UI</title>
+    <title>Pass It On @ NTUN | iOS 27 Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        :root { font-family: 'Noto Sans Thai', -apple-system, sans-serif; }
-        body { background: #f4f4f7; color: #1d1d1f; -webkit-font-smoothing: antialiased; }
-
-        /* iOS 27 Glassmorphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(30px) saturate(200%);
-            -webkit-backdrop-filter: blur(30px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-
-        .ios-card {
-            background: #ffffff;
-            border-radius: 35px;
-            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.04);
-            transition: all 0.5s cubic-bezier(0.15, 0.83, 0.66, 1);
-        }
+        :root { font-family: 'Noto Sans Thai', sans-serif; }
         
+        /* 🌑 ระบบ Dynamic Background */
+        body { 
+            background-color: #ffffff; 
+            transition: background-color 0.8s cubic-bezier(0.2, 0, 0.2, 1);
+            min-height: 200vh;
+        }
+
+        /* 🌫️ Misty Top Effect */
+        .mist-overlay {
+            position: sticky;
+            top: 72px; 
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            z-index: 40;
+            pointer-events: none;
+            transition: background 0.8s;
+        }
+
+        /* 📱 iOS 27 Glassmorphism */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-bottom: 0.5px solid rgba(0,0,0,0.05);
+        }
+
+        /* 🖼️ Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+        .ios-card {
+            border-radius: 45px;
+            background: white;
+            transition: all 0.6s cubic-bezier(0.15, 0.83, 0.66, 1);
+            animation: float 6s ease-in-out infinite;
+        }
         .ios-card:hover {
-            transform: translateY(-5px) scale(1.01);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08);
+            transform: scale(1.02) !important;
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.1);
+            animation-play-state: paused;
         }
 
-        /* ปุ่มกดแบบนุ่มนวล */
-        .btn-ios {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* 📸 Multi-Image Slider */
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            scrollbar-width: none;
         }
-        .btn-ios:active { transform: scale(0.92); opacity: 0.8; }
+        .carousel::-webkit-scrollbar { display: none; }
+        .carousel-item {
+            flex: 0 0 100%;
+            scroll-snap-align: center;
+            border-radius: 35px;
+            height: 350px;
+            object-fit: cover;
+        }
 
-        /* Custom Scroll */
-        ::-webkit-scrollbar { width: 0px; }
-
+        /* Text Sync Transition */
+        .text-sync { transition: color 0.8s ease; }
+        
         #app-content, #admin-panel { display: none; }
-
-        /* แอนิเมชันตอนโหลด */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        .fade-in { animation: fadeIn 1s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="overflow-x-hidden">
+<body class="p-0 m-0">
 
-    <div class="fixed top-[-10%] right-[-10%] w-[70vw] h-[70vw] bg-blue-200/30 rounded-full blur-[120px] z-[-1]"></div>
-    <div class="fixed bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-emerald-200/30 rounded-full blur-[100px] z-[-1]"></div>
-
-    <nav class="sticky top-0 z-[100] glass px-6 py-4 flex justify-between items-center border-b border-black/5">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-400 rounded-[16px] flex items-center justify-center text-white shadow-lg shadow-emerald-200">
-                <span class="text-2xl font-bold">P</span>
+    <nav class="sticky top-0 z-[100] glass-nav px-8 py-5 flex justify-between items-center transition-all">
+        <div class="flex items-center gap-4">
+            <div class="w-11 h-11 bg-black rounded-[15px] flex items-center justify-center text-white shadow-2xl">
+                <span class="text-xl font-bold">P</span>
             </div>
-            <div>
-                <h1 class="text-xl font-bold tracking-tight leading-none">Pass It On</h1>
-                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">NTUN Campus</span>
+            <div class="text-sync">
+                <h1 class="text-xl font-bold tracking-tight">Pass It On</h1>
+                <p class="text-[9px] font-bold uppercase tracking-widest opacity-50">NTUN Campus Hub</p>
             </div>
         </div>
-
         <div id="auth-section">
-            <div id="g_id_onload" 
-                 data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" 
-                 data-callback="handleSignIn">
-            </div>
+            <div id="g_id_onload" data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" data-callback="handleSignIn"></div>
             <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
         </div>
     </nav>
 
-    <main class="max-w-[1280px] mx-auto px-4 md:px-8 py-8">
+    <div id="mist" class="mist-overlay"></div>
+
+    <main class="max-w-[1300px] mx-auto px-6 py-12">
         
-        <div id="login-placeholder" class="text-center py-32 fade-in">
-            <h2 class="text-5xl md:text-7xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-black to-gray-400 bg-clip-text text-transparent">
-                Sharing is the <br> new shopping.
-            </h2>
-            <p class="text-gray-500 text-lg md:text-xl font-medium">เข้าใช้งานระบบส่งต่อของโรงเรียนเพื่อสังคมที่ยั่งยืน</p>
+        <div id="login-placeholder" class="text-center py-40">
+            <h2 class="text-6xl md:text-8xl font-black tracking-tighter mb-8 text-sync">The Future <br> of Giving.</h2>
+            <p class="text-gray-400 text-xl">สัมผัสประสบการณ์ส่งต่อสิ่งของแบบ iOS 27</p>
         </div>
 
-        <section id="admin-panel" class="mb-12 p-8 bg-[#1c1c1e] text-white rounded-[40px] shadow-2xl relative overflow-hidden fade-in">
-            <div class="relative z-10">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-                    <div>
-                        <h2 class="text-3xl font-bold tracking-tight">Admin Dashboard</h2>
-                        <p class="text-gray-400 text-sm">ยินดีต้อนรับ ผู้ดูแลระบบพื้นที่ NTUN</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="clearCompleted()" class="bg-white/10 hover:bg-rose-500 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all">ล้างข้อมูลสำเร็จแล้ว</button>
-                        <button onclick="location.reload()" class="bg-white text-black px-5 py-2.5 rounded-2xl text-xs font-bold transition-all">รีเฟรชระบบ</button>
-                    </div>
+        <section id="admin-panel" class="mb-16 p-10 bg-black/5 rounded-[50px] border border-black/5 text-sync fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+                <div>
+                    <h2 class="text-4xl font-black tracking-tighter mb-2">Control</h2>
+                    <p class="text-sm opacity-60">ระบบจัดการสูงสุดของแอดมิน</p>
                 </div>
-
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10">
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">รายการทั้งหมด</span>
-                        <p id="stat-total" class="text-3xl font-bold mt-1">0</p>
-                    </div>
-                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10">
-                        <span class="text-[10px] font-bold text-orange-400 uppercase tracking-widest">กำลังรอรับของ</span>
-                        <p id="stat-reserved" class="text-3xl font-bold mt-1">0</p>
-                    </div>
-                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10">
-                        <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">สำเร็จแล้ว</span>
-                        <p id="stat-done" class="text-3xl font-bold mt-1">0</p>
-                    </div>
-                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10">
-                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">แอดมินในระบบ</span>
-                        <p id="stat-admin" class="text-3xl font-bold mt-1">0</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white/5 p-6 rounded-[30px] border border-white/10">
-                        <h3 class="text-sm font-bold mb-4">➕ เพิ่มผู้ช่วยแอดมิน</h3>
-                        <div class="flex gap-2">
-                            <input type="email" id="new-admin-email" placeholder="email@ntun.ac.th" class="flex-1 bg-white/10 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-emerald-500">
-                            <button onclick="addAdmin()" class="bg-white text-black px-6 py-3.5 rounded-2xl text-sm font-bold btn-ios">เพิ่ม</button>
-                        </div>
-                    </div>
-                    <div class="bg-white/5 p-6 rounded-[30px] border border-white/10">
-                        <h3 class="text-sm font-bold mb-4">รายชื่อทีมแอดมิน</h3>
-                        <div id="admin-list" class="flex flex-wrap gap-2"></div>
+                <div class="flex gap-3">
+                    <button onclick="clearAllData()" class="bg-rose-500 text-white px-8 py-4 rounded-3xl text-xs font-bold shadow-xl shadow-rose-200 active:scale-95 transition">ล้างกระดาน</button>
+                    <div class="flex gap-2">
+                        <input type="email" id="new-admin" placeholder="เพิ่มแอดมิน" class="bg-white/50 border border-black/5 px-6 py-4 rounded-3xl text-xs outline-none focus:bg-white transition-all">
+                        <button onclick="addAdmin()" class="bg-black text-white px-6 py-4 rounded-3xl text-xs font-bold active:scale-95 transition">เพิ่ม</button>
                     </div>
                 </div>
             </div>
-            <div class="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/10 blur-[100px] rounded-full"></div>
+            <div id="admin-stats" class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10">
+                </div>
         </section>
 
-        <div id="app-content" class="fade-in">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div id="app-content">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 
-                <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
-                    <div class="ios-card p-8">
-                        <h3 class="text-2xl font-bold mb-6 tracking-tight">แชร์ของของคุณ 🎁</h3>
+                <div class="lg:col-span-4 lg:sticky lg:top-32 h-fit">
+                    <div class="bg-white p-8 rounded-[50px] shadow-2xl border border-black/5">
+                        <h3 class="text-2xl font-black mb-8 tracking-tight">Post Something.</h3>
                         <form id="post-form" onsubmit="handlePost(event)">
-                            <div class="space-y-5">
+                            <div class="space-y-6">
                                 <div class="relative group">
-                                    <input type="file" id="itemImage" accept="image/*" class="hidden" onchange="previewImage(this)">
-                                    <div onclick="document.getElementById('itemImage').click()" class="w-full h-52 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[30px] flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-50 hover:border-emerald-200 transition-all overflow-hidden relative">
-                                        <div id="preview-placeholder" class="text-center">
-                                            <span class="text-4xl block mb-2">📸</span>
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">แตะเพื่อเพิ่มรูปภาพ</p>
+                                    <input type="file" id="itemImages" accept="image/*" multiple class="hidden" onchange="previewImages(this)">
+                                    <div onclick="document.getElementById('itemImages').click()" class="w-full h-52 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[35px] flex flex-col items-center justify-center cursor-pointer hover:bg-black hover:text-white transition-all overflow-hidden relative">
+                                        <div id="placeholder-info" class="text-center">
+                                            <span class="text-4xl mb-2 block">📸</span>
+                                            <p class="text-[10px] font-bold uppercase tracking-widest opacity-50">เลือกรูปภาพหลายรูป</p>
                                         </div>
-                                        <img id="image-preview-el" class="hidden w-full h-full object-cover">
-                                        <div id="remove-img" onclick="event.stopPropagation(); removeSelectedImg();" class="hidden absolute top-3 right-3 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center backdrop-blur-md">✕</div>
+                                        <div id="img-preview-row" class="hidden w-full h-full flex p-2 gap-2 overflow-x-auto"></div>
                                     </div>
                                 </div>
 
-                                <input type="text" id="itemName" required class="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm focus:bg-white focus:border-emerald-500 outline-none transition-all" placeholder="คุณจะให้อะไร?">
-                                
-                                <select id="itemCat" class="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm outline-none appearance-none">
-                                    <option>📚 หนังสือเรียน</option>
-                                    <option>👕 ชุดนักเรียน / พละ</option>
-                                    <option>✏️ อุปกรณ์การเรียน</option>
-                                    <option>📦 อื่นๆ</option>
-                                </select>
+                                <input type="text" id="itemName" required class="w-full bg-gray-50 border-none rounded-[20px] px-6 py-5 text-sm focus:bg-white focus:ring-4 ring-black/5 outline-none transition-all" placeholder="ชื่อสิ่งของ">
+                                <textarea id="itemDetail" rows="3" required class="w-full bg-gray-50 border-none rounded-[20px] px-6 py-5 text-sm focus:bg-white focus:ring-4 ring-black/5 outline-none transition-all resize-none" placeholder="รายละเอียดและจุดนัดรับ..."></textarea>
 
-                                <textarea id="itemDetail" rows="3" required class="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm outline-none focus:bg-white focus:border-emerald-500 transition-all resize-none" placeholder="รายละเอียดสิ่งของ และจุดนัดรับ..."></textarea>
-
-                                <button type="submit" class="w-full bg-[#1c1c1e] text-white font-bold py-5 rounded-2xl shadow-xl hover:bg-emerald-600 transition-all btn-ios">
-                                    แชร์ลงบอร์ดทันที
+                                <button type="submit" class="w-full bg-black text-white font-bold py-6 rounded-[28px] shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                                    แชร์ลง Feed
                                 </button>
                             </div>
                         </form>
@@ -171,15 +157,7 @@
                 </div>
 
                 <div class="lg:col-span-8">
-                    <div class="flex justify-between items-center mb-8 px-2">
-                        <h3 class="text-3xl font-bold tracking-tight">Feed ล่าสุด</h3>
-                        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-black/5">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                            <span class="text-[10px] font-bold text-gray-500 uppercase">Live Update</span>
-                        </div>
-                    </div>
-                    
-                    <div id="feed" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="feed" class="flex flex-col gap-12 px-2">
                         </div>
                 </div>
 
@@ -188,18 +166,32 @@
     </main>
 
     <script>
-        // --- Configuration ---
-        const MASTER_ADMIN = "aceaa372@gmail.com";
-        const SCHOOL_DOMAIN = "ntun.ac.th";
-        const FORBIDDEN = ["ยาบ้า", "กัญชา", "เหล้า", "กางเกงใน", "ยกทรง", "เพศ", "sex"];
-
-        // --- Data State ---
-        let posts = JSON.parse(localStorage.getItem('ntun_v4_posts')) || [];
-        let admins = JSON.parse(localStorage.getItem('ntun_v4_admins')) || [MASTER_ADMIN];
+        const MASTER = "aceaa372@gmail.com";
+        const DOMAIN = "ntun.ac.th";
+        let posts = JSON.parse(localStorage.getItem('ntun_v6_posts')) || [];
+        let admins = JSON.parse(localStorage.getItem('ntun_v6_admins')) || [MASTER];
         let currentUser = null;
-        let selectedImgBase64 = null;
+        let tempImages = [];
 
-        // --- 1. Google Login (Thai UTF-8 Fix) ---
+        // --- 1. Dynamic Scroll Fusion ---
+        window.addEventListener('scroll', () => {
+            const scrollRatio = Math.min(window.scrollY / 1200, 1);
+            const bgColorValue = Math.floor(255 - (scrollRatio * 255));
+            const textColorValue = Math.floor(scrollRatio * 255);
+            
+            // เปลี่ยนสี Body
+            document.body.style.backgroundColor = `rgb(${bgColorValue}, ${bgColorValue}, ${bgColorValue})`;
+            
+            // เปลี่ยนสีตัวหนังสือที่ระบุคลาส .text-sync
+            const texts = document.querySelectorAll('.text-sync');
+            texts.forEach(t => t.style.color = `rgb(${255 - bgColorValue}, ${255 - bgColorValue}, ${255 - bgColorValue})`);
+            
+            // เปลี่ยนสี Mist ให้เข้ากับพื้นหลัง
+            const mist = document.getElementById('mist');
+            mist.style.background = `linear-gradient(to bottom, rgb(${bgColorValue},${bgColorValue},${bgColorValue}) 0%, rgba(${bgColorValue},${bgColorValue},${bgColorValue},0) 100%)`;
+        });
+
+        // --- 2. Auth & User Profile (Thai Encoding Fix) ---
         function handleSignIn(response) {
             try {
                 const base64Url = response.credential.split('.')[1];
@@ -207,229 +199,210 @@
                 const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
                 const payload = JSON.parse(new TextDecoder().decode(bytes));
 
-                const email = payload.email;
-                const domain = payload.hd || email.split('@')[1];
-
-                if (domain === SCHOOL_DOMAIN || email === MASTER_ADMIN) {
+                if (payload.hd === DOMAIN || payload.email === MASTER) {
                     currentUser = payload;
-                    document.getElementById('auth-section').innerHTML = `
-                        <div class="flex items-center gap-3 bg-white/80 p-2 pr-5 rounded-[20px] border border-black/5 shadow-sm">
-                            <img src="${payload.picture}" class="w-10 h-10 rounded-[12px] border border-black/5" referrerpolicy="no-referrer">
-                            <div class="hidden sm:block">
-                                <p class="text-[11px] font-bold leading-none">${payload.name}</p>
-                                <p class="text-[9px] text-emerald-500 font-bold mt-1 uppercase">Student ID Verified</p>
-                            </div>
-                            <button onclick="location.reload()" class="ml-2 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-rose-50 hover:text-rose-500 transition text-[10px]">✕</button>
-                        </div>
-                    `;
+                    document.getElementById('auth-section').innerHTML = `<img src="${payload.picture}" class="w-11 h-11 rounded-full border-2 border-white shadow-lg active:scale-90 transition cursor-pointer" onclick="location.reload()">`;
                     unlock();
                 } else {
-                    alert(`❌ ปฏิเสธ: ระบบนี้อนุญาตเฉพาะนักเรียน @${SCHOOL_DOMAIN} เท่านั้น`);
+                    alert("⚠️ ต้องใช้อีเมลโรงเรียน @ntun.ac.th เท่านั้น!");
                 }
-            } catch (err) { alert("Login Error"); }
+            } catch (e) { console.error("Auth Fail", e); }
         }
 
         function unlock() {
             document.getElementById('login-placeholder').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
-            if (admins.includes(currentUser.email)) {
-                document.getElementById('admin-panel').style.display = 'block';
-                updateAdminStats();
-            }
+            if (admins.includes(currentUser.email)) document.getElementById('admin-panel').style.display = 'block';
             renderFeed();
+            updateStats();
         }
 
-        // --- 2. Image Engine (Resize & Compress) ---
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
+        // --- 3. Multi-Image Carousel Logic ---
+        async function previewImages(input) {
+            const files = Array.from(input.files).slice(0, 5); // จำกัด 5 รูป
+            tempImages = [];
+            const previewRow = document.getElementById('img-preview-row');
+            previewRow.innerHTML = '';
+            
+            for (let file of files) {
+                const base64 = await compress(file);
+                tempImages.push(base64);
+                previewRow.innerHTML += `<img src="${base64}" class="h-full w-24 object-cover rounded-[20px] shadow-sm border-2 border-white">`;
+            }
+            
+            previewRow.classList.remove('hidden');
+            document.getElementById('placeholder-info').classList.add('hidden');
+        }
+
+        function compress(file) {
+            return new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
                     const img = new Image();
                     img.src = e.target.result;
-                    img.onload = function() {
+                    img.onload = () => {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        const maxW = 600; // บีบอัดให้ไม่เกิน 600px เพื่อประหยัดพื้นที่
-                        const scale = maxW / img.width;
-                        canvas.width = maxW;
-                        canvas.height = img.height * scale;
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        
-                        selectedImgBase64 = canvas.toDataURL('image/jpeg', 0.7); // คุณภาพ 70%
-                        
-                        document.getElementById('image-preview-el').src = selectedImgBase64;
-                        document.getElementById('image-preview-el').classList.remove('hidden');
-                        document.getElementById('preview-placeholder').classList.add('hidden');
-                        document.getElementById('remove-img').classList.remove('hidden');
+                        const maxDim = 400; // บีบอัดให้เล็กลงมากเพื่อเก็บหลายรูปได้
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > maxDim) { h *= maxDim / w; w = maxDim; } }
+                        else { if (h > maxDim) { w *= maxDim / h; h = maxDim; } }
+                        canvas.width = w; canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.5));
                     }
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
+                }
+            });
         }
 
-        function removeSelectedImg() {
-            selectedImgBase64 = null;
-            document.getElementById('itemImage').value = '';
-            document.getElementById('image-preview-el').classList.add('hidden');
-            document.getElementById('preview-placeholder').classList.remove('hidden');
-            document.getElementById('remove-img').classList.add('hidden');
-        }
-
-        // --- 3. Post Logic ---
+        // --- 4. Post & Feed Logic ---
         function handlePost(e) {
             e.preventDefault();
-            const name = document.getElementById('itemName').value;
-            const detail = document.getElementById('itemDetail').value;
-            const cat = document.getElementById('itemCat').value;
-
-            if (FORBIDDEN.some(w => (name + detail).toLowerCase().includes(w))) {
-                return alert("⚠️ ตรวจพบคำไม่เหมาะสม กรุณาใช้คำสุภาพ");
-            }
-
             const newPost = {
                 id: Date.now(),
                 user: currentUser.name,
                 email: currentUser.email,
                 avatar: currentUser.picture,
-                name, detail, cat,
-                image: selectedImgBase64,
+                name: document.getElementById('itemName').value,
+                detail: document.getElementById('itemDetail').value,
+                images: tempImages,
                 status: 'available',
                 reservedBy: null,
                 date: new Date().toLocaleDateString('th-TH')
             };
-
             posts.unshift(newPost);
-            saveData();
+            save();
             renderFeed();
             e.target.reset();
-            removeSelectedImg();
-            if (admins.includes(currentUser.email)) updateAdminStats();
-            alert("✅ ลงประกาศสำเร็จ!");
+            tempImages = [];
+            document.getElementById('img-preview-row').classList.add('hidden');
+            document.getElementById('placeholder-info').classList.remove('hidden');
+            updateStats();
         }
 
         function renderFeed() {
             const feed = document.getElementById('feed');
-            const isAdmin = admins.includes(currentUser.email);
-            
-            if (posts.length === 0) {
-                feed.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 ios-card border-2 border-dashed border-gray-100 bg-transparent">ยังไม่มีของที่ส่งต่อในขณะนี้</div>`;
-                return;
-            }
-
             feed.innerHTML = posts.map(post => {
                 const isOwner = post.email === currentUser.email;
-                let statusBadge = `<span class="bg-emerald-500/10 text-emerald-600 px-3 py-1.5 rounded-full text-[10px] font-bold">ว่าง</span>`;
-                let actionBtn = `<button onclick="reserve(${post.id})" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-ios">จองของ</button>`;
-                let cardClass = "ios-card overflow-hidden fade-in";
+                const isAdmin = admins.includes(currentUser.email);
+                let cardState = "ios-card p-10";
+                let actionBtn = `<button onclick="reserve(${post.id})" class="bg-black text-white px-8 py-3.5 rounded-3xl text-xs font-bold active:scale-95 transition">สนใจจอง</button>`;
 
                 if (post.status === 'reserved') {
-                    statusBadge = `<span class="bg-orange-500/10 text-orange-600 px-3 py-1.5 rounded-full text-[10px] font-bold">จองแล้วโดย ${post.reservedBy}</span>`;
+                    cardState += " opacity-60 grayscale border-4 border-gray-100";
                     actionBtn = isOwner ? 
-                        `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-ios animate-pulse">ยืนยันส่งแล้ว</button>` : 
-                        `<span class="text-xs text-gray-400 font-bold bg-gray-100 px-4 py-2 rounded-xl">ไม่ว่าง</span>`;
-                    cardClass += " opacity-90 border-2 border-orange-100";
+                        `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-8 py-3.5 rounded-3xl text-xs font-bold animate-pulse">ส่งของแล้ว</button>` : 
+                        `<span class="text-xs font-bold text-gray-400 bg-gray-50 px-6 py-3 rounded-2xl">ถูกจองโดย ${post.reservedBy}</span>`;
                 } else if (post.status === 'completed') {
-                    statusBadge = `<span class="bg-gray-100 text-gray-400 px-3 py-1.5 rounded-full text-[10px] font-bold">ส่งมอบสำเร็จ</span>`;
-                    actionBtn = `<span class="text-xs text-emerald-500 font-bold">✓ Success</span>`;
-                    cardClass += " grayscale opacity-40 scale-[0.98]";
+                    cardState += " opacity-30 grayscale scale-95";
+                    actionBtn = `<span class="text-xs font-black text-emerald-500">✓ DELIVERED</span>`;
                 }
 
                 return `
-                <div class="${cardClass}">
-                    ${post.image ? `<img src="${post.image}" class="w-full h-56 object-cover">` : '<div class="w-full h-12 bg-gray-50/50"></div>'}
-                    <div class="p-7">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${post.cat}</span>
-                            ${statusBadge}
+                <div class="${cardState}">
+                    ${post.images.length > 0 ? `
+                        <div class="carousel mb-10">
+                            ${post.images.map(img => `<img src="${img}" class="carousel-item">`).join('')}
                         </div>
-                        <h4 class="text-xl font-bold mb-2 leading-tight">${post.name}</h4>
-                        <p class="text-sm text-gray-500 mb-8 line-clamp-2 leading-relaxed">${post.detail}</p>
-                        
-                        <div class="flex items-center justify-between pt-5 border-t border-gray-50">
-                            <div class="flex items-center gap-3">
-                                <img src="${post.avatar}" class="w-7 h-7 rounded-full shadow-sm" referrerpolicy="no-referrer">
-                                <div class="leading-none">
-                                    <span class="block text-[11px] font-bold text-gray-800">${post.user}</span>
-                                    <span class="block text-[8px] text-gray-400 mt-1">${post.date}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                ${actionBtn}
-                                ${isAdmin || isOwner ? `<button onclick="del(${post.id})" class="text-rose-500 w-9 h-9 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-500 hover:text-white transition-all">🗑️</button>` : ''}
+                    ` : ''}
+                    
+                    <div class="flex justify-between items-start mb-6">
+                        <h4 class="text-3xl font-black tracking-tighter leading-tight">${post.name}</h4>
+                        <div class="flex items-center gap-2">
+                            ${isAdmin || isOwner ? `<button onclick="del(${post.id})" class="w-10 h-10 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all">🗑️</button>` : ''}
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-500 text-base mb-10 leading-relaxed">${post.detail}</p>
+                    
+                    <div class="flex items-center justify-between pt-8 border-t border-gray-50">
+                        <div class="flex items-center gap-3">
+                            <img src="${post.avatar}" class="w-9 h-9 rounded-full">
+                            <div>
+                                <p class="text-[11px] font-black">${post.user}</p>
+                                <p class="text-[9px] text-gray-400 uppercase tracking-widest">${post.date}</p>
                             </div>
                         </div>
+                        ${actionBtn}
                     </div>
                 </div>
                 `;
             }).join('');
         }
 
-        // --- 4. System Logic ---
+        // --- 5. System Functions ---
         function reserve(id) {
             const p = posts.find(x => x.id === id);
             if(p.email === currentUser.email) return alert("จองของตัวเองไม่ได้นะ!");
-            if(confirm(`ยืนยันการจอง "${p.name}"?\nกรุณาติดต่อเจ้าของโพสต์เพื่อรับของ`)) {
+            if(confirm("ยืนยันการจอง? รายการจะเปลี่ยนเป็นสีขาวทึบและคนอื่นจะจองไม่ได้จนกว่าเจ้าของจะส่งของ")) {
                 p.status = 'reserved';
                 p.reservedBy = currentUser.name;
-                saveData(); renderFeed(); updateAdminStats();
+                save(); renderFeed(); updateStats();
             }
         }
 
         function complete(id) {
             if(confirm("คุณส่งมอบของชิ้นนี้ให้เพื่อนเรียบร้อยแล้วใช่ไหม?")) {
                 posts.find(x => x.id === id).status = 'completed';
-                saveData(); renderFeed(); updateAdminStats();
+                save(); renderFeed(); updateStats();
             }
         }
 
         function del(id) {
             if(confirm("ลบโพสต์นี้ถาวร?")) {
                 posts = posts.filter(x => x.id !== id);
-                saveData(); renderFeed(); updateAdminStats();
+                save(); renderFeed(); updateStats();
             }
         }
 
-        function clearCompleted() {
-            if(confirm("ลบรายการที่ส่งมอบสำเร็จทั้งหมดเพื่อล้างกระดาน?")) {
-                posts = posts.filter(x => x.status !== 'completed');
-                saveData(); renderFeed(); updateAdminStats();
+        function clearAllData() {
+            if(confirm("⚠️ ลบข้อมูลทั้งหมดบนเครื่องนี้?")) {
+                posts = [];
+                save(); renderFeed(); updateStats();
             }
         }
 
         function addAdmin() {
-            const email = document.getElementById('new-admin-email').value.trim().toLowerCase();
+            const email = document.getElementById('new-admin').value.trim().toLowerCase();
             if(email && !admins.includes(email)) {
                 admins.push(email);
-                localStorage.setItem('ntun_v4_admins', JSON.stringify(admins));
-                updateAdminStats();
-                document.getElementById('new-admin-email').value = "";
-                alert("เพิ่มแอดมินใหม่สำเร็จ");
+                localStorage.setItem('ntun_v6_admins', JSON.stringify(admins));
+                updateStats();
+                document.getElementById('new-admin').value = "";
             }
         }
 
-        function updateAdminStats() {
-            document.getElementById('stat-total').innerText = posts.length;
-            document.getElementById('stat-reserved').innerText = posts.filter(p => p.status === 'reserved').length;
-            document.getElementById('stat-done').innerText = posts.filter(p => p.status === 'completed').length;
-            document.getElementById('stat-admin').innerText = admins.length;
-            
-            document.getElementById('admin-list').innerHTML = admins.map(a => `
-                <div class="bg-white/10 px-4 py-2 rounded-2xl flex items-center gap-3 text-[11px] border border-white/5">
-                    <span class="w-2 h-2 bg-blue-400 rounded-full"></span> ${a} 
-                    ${a !== MASTER_ADMIN ? `<button onclick="removeAdmin('${a}')" class="text-rose-400 font-bold ml-1">✕</button>` : '👑'}
+        function updateStats() {
+            const stats = document.getElementById('admin-stats');
+            const counts = { 
+                all: posts.length, 
+                wait: posts.filter(p => p.status === 'reserved').length,
+                done: posts.filter(p => p.status === 'completed').length,
+                adm: admins.length
+            };
+            stats.innerHTML = `
+                <div class="bg-white/40 p-6 rounded-[30px] border border-black/5">
+                    <p class="text-[9px] font-black uppercase opacity-40">Total</p>
+                    <p class="text-3xl font-black">${counts.all}</p>
                 </div>
-            `).join('');
+                <div class="bg-orange-50/40 p-6 rounded-[30px] border border-orange-100">
+                    <p class="text-[9px] font-black uppercase text-orange-400">Waiting</p>
+                    <p class="text-3xl font-black text-orange-500">${counts.wait}</p>
+                </div>
+                <div class="bg-emerald-50/40 p-6 rounded-[30px] border border-emerald-100">
+                    <p class="text-[9px] font-black uppercase text-emerald-400">Success</p>
+                    <p class="text-3xl font-black text-emerald-500">${counts.done}</p>
+                </div>
+                <div class="bg-blue-50/40 p-6 rounded-[30px] border border-blue-100">
+                    <p class="text-[9px] font-black uppercase text-blue-400">Admins</p>
+                    <p class="text-3xl font-black text-blue-500">${counts.adm}</p>
+                </div>
+            `;
         }
 
-        function removeAdmin(a) {
-            if(confirm("ยกเลิกสิทธิ์แอดมินคนนี้?")) {
-                admins = admins.filter(x => x !== a);
-                localStorage.setItem('ntun_v4_admins', JSON.stringify(admins));
-                updateAdminStats();
-            }
-        }
+        function save() { localStorage.setItem('ntun_v6_posts', JSON.stringify(posts)); }
 
-        function saveData() { localStorage.setItem('ntun_v4_posts', JSON.stringify(posts)); }
     </script>
 </body>
 </html>
