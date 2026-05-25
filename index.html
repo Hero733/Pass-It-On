@@ -3,78 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pass It On @ NTUN | Admin System</title>
+    <title>Pass It On @ NTUN | แชร์ของมือสอง</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Sarabun', sans-serif; }
         .hero-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        /* ตั้งค่าซ่อนหน้าจอเริ่มต้น */
+        #app-content, #admin-panel { display: none; }
     </style>
 </head>
 <body class="bg-[#FAFAFA] text-slate-900 min-h-screen">
 
-    <script>
-        const CLIENT_ID = "802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com";
-        const MASTER_ADMIN = "aceaa372@gmail.com";
-        const SCHOOL_DOMAIN = "ntun.ac.th";
-        
-        // รายการคำต้องห้าม (ยาเสพติด, ของผิดกฎหมาย, ชุดชั้นใน)
-        const FORBIDDEN_KEYWORDS = [
-            "ยาบ้า", "ยาไอซ์", "กัญชา", "บุหรี่", "เหล้า", "เบียร์", "ปืน", "มีด", 
-            "กางเกงใน", "ยกทรง", "บรา", "ชุดชั้นใน", "กางเกงลิง", "underwear", "bra",
-            "เซ็กส์", "sex", "พนัน", "หวย"
-        ];
-    </script>
-
-    <nav class="sticky top-0 z-50 hero-blur bg-white/70 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-2">
+    <nav class="sticky top-0 z-50 hero-blur bg-white/70 border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
                 <span class="text-xl">♻️</span>
             </div>
             <div>
-                <h1 class="text-lg font-bold leading-none">Pass It On</h1>
+                <h1 class="text-lg font-bold leading-none text-slate-800">Pass It On</h1>
                 <span class="text-[10px] uppercase tracking-wider text-emerald-600 font-bold">NTUN Campus</span>
             </div>
         </div>
         
         <div id="auth-section">
-            <div id="g_id_onload" data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" data-callback="handleSignIn"></div>
-            <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
+            <div id="g_id_onload" 
+                 data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" 
+                 data-callback="handleSignIn"
+                 data-auto_select="false">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large"></div>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-4 py-8">
         
-        <section id="admin-panel" class="hidden mb-10 p-6 bg-slate-900 rounded-[2.5rem] text-white shadow-2xl overflow-hidden relative">
+        <div id="login-placeholder" class="text-center py-20">
+            <div class="w-24 h-24 bg-emerald-50 border-2 border-emerald-100 text-emerald-600 rounded-[2rem] flex items-center justify-center text-4xl mx-auto mb-6 shadow-sm">🔒</div>
+            <h2 class="text-2xl font-bold mb-2 text-slate-800">เข้าใช้งานสำหรับนักเรียน NTUN</h2>
+            <p class="text-slate-500 mb-8 max-w-sm mx-auto text-sm">กรุณาล็อกอินด้วยอีเมลโรงเรียน (@ntun.ac.th) เพื่อความปลอดภัยและยืนยันตัวตนคนในพื้นที่</p>
+        </div>
+
+        <section id="admin-panel" class="mb-10 p-6 bg-slate-900 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
             <div class="relative z-10">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold flex items-center gap-2">
                         <span class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
                         Admin Dashboard
                     </h2>
-                    <span class="text-xs bg-white/10 px-3 py-1 rounded-full border border-white/20">ระบบจัดการสูงสุด</span>
+                    <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full border border-white/20 uppercase tracking-wide">ส่วนควบคุมสูงสุด</span>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white/5 p-4 rounded-3xl border border-white/10">
-                        <p class="text-sm font-semibold mb-3">เพิ่มแอดมินใหม่ (ใส่อีเมล)</p>
+                    <div class="bg-white/5 p-5 rounded-3xl border border-white/10">
+                        <p class="text-sm font-semibold mb-3">เพิ่มแอดมินใหม่</p>
                         <div class="flex gap-2">
-                            <input type="email" id="new-admin-email" placeholder="example@ntun.ac.th" class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm focus:outline-none">
-                            <button onclick="addAdmin()" class="bg-white text-slate-900 px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-400 transition">เพิ่มสิทธิ์</button>
+                            <input type="email" id="new-admin-email" placeholder="example@ntun.ac.th" class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-400 outline-none focus:border-emerald-400 transition">
+                            <button onclick="addAdmin()" class="bg-white text-slate-900 px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-400 hover:text-slate-900 transition shadow-md">เพิ่มสิทธิ์</button>
                         </div>
                     </div>
-                    <div class="bg-white/5 p-4 rounded-3xl border border-white/10">
-                        <p class="text-sm font-semibold mb-2">รายชื่อทีมแอดมิน</p>
-                        <ul id="admin-list" class="text-xs text-slate-400 flex flex-wrap gap-2">
+                    <div class="bg-white/5 p-5 rounded-3xl border border-white/10">
+                        <p class="text-sm font-semibold mb-3">รายชื่อทีมแอดมิน</p>
+                        <ul id="admin-list" class="flex flex-wrap gap-2">
                             </ul>
                     </div>
                 </div>
             </div>
-            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/20 blur-[80px] rounded-full"></div>
+            <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-emerald-500/20 blur-[80px] rounded-full pointer-events-none"></div>
         </section>
 
-        <div id="app-content" class="hidden">
+        <div id="app-content">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
                 <div class="lg:col-span-4">
@@ -83,27 +82,27 @@
                         <form id="post-form" onsubmit="handlePost(event)">
                             <div class="space-y-4">
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">ชื่อสิ่งของ</label>
-                                    <input type="text" id="itemName" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="ระบุชื่อของ">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">ชื่อสิ่งของ</label>
+                                    <input type="text" id="itemName" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="เช่น หนังสือเรียน ม.4, เสื้อพละ">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">หมวดหมู่</label>
-                                    <select id="itemCat" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none">
-                                        <option>หนังสือเรียน</option>
-                                        <option>ชุดนักเรียน</option>
-                                        <option>อุปกรณ์การเรียน</option>
-                                        <option>อื่นๆ</option>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">หมวดหมู่</label>
+                                    <select id="itemCat" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:border-emerald-500 transition-all">
+                                        <option>📚 หนังสือเรียน</option>
+                                        <option>👕 ชุดนักเรียน</option>
+                                        <option>✏️ อุปกรณ์การเรียน</option>
+                                        <option>⚽ อื่นๆ</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">รายละเอียดและจุดนัดรับ</label>
-                                    <textarea id="itemDetail" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="สภาพของ / จุดนัดรับ..."></textarea>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">รายละเอียดและจุดนัดรับ</label>
+                                    <textarea id="itemDetail" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="บอกสภาพของ และจุดที่สะดวกนัดรับ..."></textarea>
                                 </div>
-                                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-5 rounded-2xl hover:bg-emerald-600 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]">
+                                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 shadow-xl shadow-slate-200/50 transition-all active:scale-[0.98]">
                                     แชร์ลงแพลตฟอร์ม
                                 </button>
-                                <p class="text-[10px] text-center text-slate-400 px-4">
-                                    *ระบบจะตรวจสอบคำไม่สุภาพและของต้องห้ามโดยอัตโนมัติเพื่อความปลอดภัยของส่วนรวม
+                                <p class="text-[9px] text-center text-slate-400 px-2 mt-2 leading-relaxed">
+                                    *ระบบมี AI คัดกรองคำอัตโนมัติ ไม่อนุญาตให้โพสต์สิ่งของผิดกฎหมาย ยาเสพติด หรือของใช้ส่วนตัวเพื่อความปลอดภัย
                                 </p>
                             </div>
                         </form>
@@ -113,9 +112,9 @@
                 <div class="lg:col-span-8">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-xl font-bold text-slate-800">รายการล่าสุด</h3>
-                        <div class="flex gap-2">
-                            <span class="w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></span>
-                            <span class="text-xs font-bold text-slate-500">Live Updates</span>
+                        <div class="flex gap-2 items-center bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                            <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Live</span>
                         </div>
                     </div>
                     <div id="feed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -124,105 +123,150 @@
 
             </div>
         </div>
-
-        <div id="login-placeholder" class="text-center py-20">
-            <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-[2rem] flex items-center justify-center text-4xl mx-auto mb-6">🔒</div>
-            <h2 class="text-2xl font-bold mb-2">เข้าใช้งานสำหรับนักเรียน NTUN</h2>
-            <p class="text-slate-500 mb-8 max-w-sm mx-auto text-sm">กรุณาล็อกอินด้วยอีเมลโรงเรียน (@ntun.ac.th) เพื่อความปลอดภัยและยืนยันตัวตนคนในพื้นที่</p>
-        </div>
-
     </main>
 
     <script>
-        // ระบบจำลองฐานข้อมูล (LocalStorage)
-        let posts = JSON.parse(localStorage.getItem('ntun_posts')) || [];
-        let admins = JSON.parse(localStorage.getItem('ntun_admins')) || [MASTER_ADMIN];
+        // ==========================================
+        // 1. ตั้งค่าพื้นฐาน (Configuration)
+        // ==========================================
+        const MASTER_ADMIN = "aceaa372@gmail.com";
+        const SCHOOL_DOMAIN = "ntun.ac.th";
+        
+        // คำต้องห้าม (เซ็นเซอร์)
+        const FORBIDDEN_KEYWORDS = [
+            "ยาบ้า", "ยาไอซ์", "กัญชา", "บุหรี่", "เหล้า", "เบียร์", "ปืน", "มีด", 
+            "กางเกงใน", "ยกทรง", "บรา", "ชุดชั้นใน", "กางเกงลิง", "underwear", "bra", 
+            "เซ็กส์", "sex", "พนัน", "หวย"
+        ];
+
+        // ==========================================
+        // 2. จัดการฐานข้อมูลจำลอง (LocalStorage)
+        // ==========================================
+        let posts = [];
+        let admins = [MASTER_ADMIN];
         let currentUser = null;
 
-        // 1. จัดการการ Login
-        function handleSignIn(response) {
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            const email = payload.email;
-            const domain = payload.hd;
+        try {
+            const savedPosts = localStorage.getItem('ntun_posts');
+            const savedAdmins = localStorage.getItem('ntun_admins');
+            if (savedPosts) posts = JSON.parse(savedPosts);
+            if (savedAdmins) admins = JSON.parse(savedAdmins);
+        } catch(e) {
+            console.error("Local Storage Error:", e);
+        }
 
-            // ตรวจสอบสิทธิ์ (ต้องเป็น Domain รร. หรือเป็น Master Admin)
-            if (domain === SCHOOL_DOMAIN || email === MASTER_ADMIN) {
-                currentUser = payload;
-                document.getElementById('auth-section').innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="text-right hidden sm:block">
-                            <p class="text-xs font-bold leading-none">${payload.name}</p>
-                            <p class="text-[10px] text-slate-400">${payload.email}</p>
+        // ==========================================
+        // 3. ระบบยืนยันตัวตน (Google Login)
+        // ==========================================
+        function handleSignIn(response) {
+            try {
+                // ถอดรหัส JWT (รองรับภาษาไทย 100%)
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                const payload = JSON.parse(jsonPayload);
+                const email = payload.email;
+                const domain = payload.hd || email.split('@')[1]; 
+
+                // เช็คว่าเป็นอีเมลโรงเรียน หรือ แอดมินหลัก
+                if (domain === SCHOOL_DOMAIN || email === MASTER_ADMIN) {
+                    currentUser = payload;
+                    
+                    // อัปเดต UI แถบด้านบน
+                    document.getElementById('auth-section').innerHTML = `
+                        <div class="flex items-center gap-3 bg-white p-1 pr-4 rounded-2xl border border-slate-200 shadow-sm">
+                            <img src="${payload.picture}" class="w-8 h-8 rounded-xl border border-slate-100" referrerpolicy="no-referrer">
+                            <div class="text-left leading-tight hidden sm:block">
+                                <p class="text-[10px] font-bold text-slate-800">${payload.name}</p>
+                                <p class="text-[9px] text-slate-500">${payload.email}</p>
+                            </div>
+                            <button onclick="location.reload()" class="ml-2 text-slate-400 hover:text-rose-500 transition font-bold" title="ออกระบบ">✕</button>
                         </div>
-                        <img src="${payload.picture}" class="w-10 h-10 rounded-2xl border-2 border-white shadow-md">
-                        <button onclick="location.reload()" class="p-2 hover:bg-rose-50 text-rose-500 rounded-xl transition">🚪</button>
-                    </div>
-                `;
-                unlockUI();
-            } else {
-                alert("❌ เฉพาะอีเมล @ntun.ac.th เท่านั้นที่เข้าใช้งานได้!");
+                    `;
+                    
+                    unlockApp(); // สั่งปลดล็อกหน้าแอป
+                } else {
+                    alert(`❌ ปฏิเสธการเข้าใช้งาน!\nระบบนี้เป็นพื้นที่ปิด อนุญาตเฉพาะอีเมล @${SCHOOL_DOMAIN} เท่านั้น\nอีเมลที่คุณใช้คือ: ${email}`);
+                }
+            } catch (error) {
+                console.error("Authentication Error:", error);
+                alert("⚠️ เกิดข้อผิดพลาดในการอ่านข้อมูลจาก Google กรุณาลองใหม่อีกครั้ง");
             }
         }
 
-        function unlockUI() {
-            document.getElementById('login-placeholder').classList.add('hidden');
-            document.getElementById('app-content').classList.remove('hidden');
-            
-            // เช็คว่าคนนี้เป็นแอดมินไหม
+        function unlockApp() {
+            // ซ่อนหน้าล็อกอิน และ แสดงหน้าแอปหลัก โดยแก้ Style โดยตรง
+            document.getElementById('login-placeholder').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+
+            // ถ้าคนนี้เป็นแอดมิน ให้แสดงหน้า Admin
             if (admins.includes(currentUser.email)) {
-                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('admin-panel').style.display = 'block';
                 renderAdminList();
             }
+            
+            // โหลดฟีดข้อมูล
             renderFeed();
         }
 
-        // 2. ระบบจัดการแอดมิน
+        // ==========================================
+        // 4. ระบบจัดการแอดมิน
+        // ==========================================
         function addAdmin() {
-            const email = document.getElementById('new-admin-email').value.trim();
-            if (email && !admins.includes(email)) {
-                admins.push(email);
-                localStorage.setItem('ntun_admins', JSON.stringify(admins));
-                renderAdminList();
-                document.getElementById('new-admin-email').value = "";
-                alert("เพิ่มแอดมินใหม่สำเร็จ!");
-            }
+            const emailInput = document.getElementById('new-admin-email');
+            const email = emailInput.value.trim().toLowerCase();
+            
+            if (!email) return alert("กรุณาใส่อีเมล");
+            if (admins.includes(email)) return alert("อีเมลนี้เป็นแอดมินอยู่แล้ว");
+            
+            admins.push(email);
+            localStorage.setItem('ntun_admins', JSON.stringify(admins));
+            renderAdminList();
+            emailInput.value = "";
+            alert("✅ เพิ่มสิทธิ์แอดมินสำเร็จ");
         }
 
         function renderAdminList() {
             const list = document.getElementById('admin-list');
             list.innerHTML = admins.map(email => `
-                <li class="bg-white/10 px-3 py-1 rounded-lg border border-white/10 flex items-center gap-2">
+                <li class="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 text-[11px] font-medium text-slate-200">
                     ${email} 
-                    ${email !== MASTER_ADMIN ? `<button onclick="removeAdmin('${email}')" class="text-rose-400 hover:text-rose-300">×</button>` : '👑'}
+                    ${email !== MASTER_ADMIN ? `<button onclick="removeAdmin('${email}')" class="text-rose-400 hover:text-rose-300 ml-1 font-bold text-sm leading-none">×</button>` : '👑'}
                 </li>
             `).join('');
         }
 
         function removeAdmin(email) {
-            if (confirm(`ยกเลิกสิทธิ์แอดมินของ ${email}?`)) {
+            if (confirm(`คุณต้องการยกเลิกสิทธิ์แอดมินของ ${email} ใช่หรือไม่?`)) {
                 admins = admins.filter(a => a !== email);
                 localStorage.setItem('ntun_admins', JSON.stringify(admins));
                 renderAdminList();
-                if (email === currentUser.email) location.reload();
+                if (email === currentUser.email) location.reload(); // ถ้ายกเลิกตัวเองให้รีเฟรช
             }
         }
 
-        // 3. ระบบโพสต์ (พร้อม Filter คำต้องห้าม)
+        // ==========================================
+        // 5. ระบบจัดการโพสต์ (พร้อม Filter)
+        // ==========================================
         function handlePost(e) {
             e.preventDefault();
             const name = document.getElementById('itemName').value;
             const detail = document.getElementById('itemDetail').value;
             const cat = document.getElementById('itemCat').value;
 
-            // ตรวจสอบคำต้องห้าม
+            // กรองคำหยาบ / ของผิดกฎหมาย
             const fullText = (name + " " + detail).toLowerCase();
             const hasForbidden = FORBIDDEN_KEYWORDS.some(word => fullText.includes(word.toLowerCase()));
 
             if (hasForbidden) {
-                alert("🚨 ตรวจพบรายการที่ไม่เหมาะสม!\nระบบไม่อนุญาตให้โพสต์สิ่งของที่ผิดกฎหมาย, ยาเสพติด หรือของใช้ส่วนตัวบางประเภท เพื่อความปลอดภัยและระเบียบของโรงเรียน");
+                alert("🚨 ไม่สามารถโพสต์ได้!\nระบบตรวจพบคำหรือสิ่งของที่ผิดระเบียบของโรงเรียน");
                 return;
             }
 
+            // สร้าง Object ข้อมูล
             const newPost = {
                 id: Date.now(),
                 user: currentUser.name,
@@ -234,31 +278,41 @@
                 date: new Date().toLocaleDateString('th-TH')
             };
 
-            posts.unshift(newPost);
+            posts.unshift(newPost); // เพิ่มไว้บนสุด
             localStorage.setItem('ntun_posts', JSON.stringify(posts));
             document.getElementById('post-form').reset();
             renderFeed();
             alert("✅ ลงประกาศสำเร็จ!");
         }
 
-        // 4. แสดงผล Feed
         function renderFeed() {
-            const isAdmin = admins.includes(currentUser.email);
             const feed = document.getElementById('feed');
+            const isAdmin = admins.includes(currentUser.email);
+            
+            if (posts.length === 0) {
+                feed.innerHTML = '<div class="col-span-full py-16 text-center text-slate-400 bg-white rounded-[2.5rem] border border-slate-100 border-dashed">ยังไม่มีรายการส่งต่อในขณะนี้ เป็นคนแรกที่เริ่มแชร์เลย!</div>';
+                return;
+            }
+
             feed.innerHTML = posts.map(post => `
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-200 group hover:border-emerald-500 transition-all shadow-sm">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-3 py-1 rounded-full uppercase tracking-widest">${post.cat}</span>
-                        ${isAdmin ? `<button onclick="deletePost(${post.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-xl transition">🗑️ ลบโพสต์</button>` : ''}
-                    </div>
-                    <h4 class="text-lg font-bold text-slate-800 mb-2">${post.name}</h4>
-                    <p class="text-sm text-slate-500 mb-6 line-clamp-3">${post.detail}</p>
-                    <div class="flex items-center justify-between pt-4 border-t border-slate-50">
-                        <div class="flex items-center gap-2">
-                            <img src="${post.avatar}" class="w-6 h-6 rounded-lg shadow-sm">
-                            <span class="text-[11px] font-bold text-slate-600">${post.user}</span>
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-between hover:border-emerald-400 hover:shadow-md transition-all duration-300">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-[9px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full uppercase tracking-wide border border-slate-200">${post.cat}</span>
+                            ${isAdmin ? `<button onclick="deletePost(${post.id})" class="text-rose-500 text-[10px] font-bold bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-lg transition">ลบ</button>` : ''}
                         </div>
-                        <button onclick="alert('กรุณาติดต่อผ่านอีเมล: ${post.email}')" class="text-xs bg-slate-900 text-white px-4 py-2 rounded-xl font-bold hover:bg-emerald-600 transition">ขอรับของ</button>
+                        <h4 class="text-lg font-bold text-slate-800 mb-1 leading-tight">${post.name}</h4>
+                        <p class="text-[12px] text-slate-500 mb-5 line-clamp-3 leading-relaxed">${post.detail}</p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <img src="${post.avatar}" class="w-7 h-7 rounded-full shadow-sm border border-slate-100" referrerpolicy="no-referrer">
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-bold text-slate-700 truncate max-w-[90px]">${post.user}</span>
+                                <span class="block text-[8px] text-slate-400">${post.date}</span>
+                            </div>
+                        </div>
+                        <button onclick="alert('📨 สนใจรับของชิ้นนี้\\nกรุณาติดต่อเจ้าของผ่านอีเมล: ${post.email}\\n\\n*แนะนำให้นัดรับของที่จุด Drop-off ส่วนกลางของโรงเรียนเพื่อความปลอดภัยครับ')" class="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold shadow-md shadow-emerald-200 active:scale-95 transition">ขอรับของ</button>
                     </div>
                 </div>
             `).join('');
