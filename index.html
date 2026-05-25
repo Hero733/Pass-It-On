@@ -3,27 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pass It On @ NTUN | แชร์ของมือสอง</title>
+    <title>Pass It On @ NTUN | iOS Design</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; }
-        .hero-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        :root {
+            font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body { margin: 0; padding: 0; min-height: 100vh; background-color: #F2F2F7; color: #1C1C1E; overflow-x: hidden; }
+        
+        /* สไตล์ Glassmorphism สไตล์ iOS */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+            border-radius: 28px;
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.5);
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.9);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.2);
+        }
+        
+        /* พื้นหลังแบบ iOS Abstract Bubble Gradient */
+        .bg-blob-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: #FFD6E8; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.7; }
+        .bg-blob-2 { position: fixed; bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: #C8E6C9; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.8; }
+        .bg-blob-3 { position: fixed; top: 40%; left: 30%; width: 40vw; height: 40vw; background: #D0D8FF; border-radius: 50%; filter: blur(90px); z-index: -1; opacity: 0.6; }
+
         /* ตั้งค่าซ่อนหน้าจอเริ่มต้น */
         #app-content, #admin-panel { display: none; }
     </style>
 </head>
-<body class="bg-[#FAFAFA] text-slate-900 min-h-screen">
+<body>
 
-    <nav class="sticky top-0 z-50 hero-blur bg-white/70 border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
+    <div class="bg-blob-1"></div>
+    <div class="bg-blob-2"></div>
+    <div class="bg-blob-3"></div>
+
+    <nav class="sticky top-0 z-50 glass-nav px-6 py-3 flex justify-between items-center transition-all">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+            <div class="w-10 h-10 bg-gradient-to-br from-[#34C759] to-[#28A745] rounded-[14px] flex items-center justify-center text-white shadow-sm shadow-green-200">
                 <span class="text-xl">♻️</span>
             </div>
             <div>
-                <h1 class="text-lg font-bold leading-none text-slate-800">Pass It On</h1>
-                <span class="text-[10px] uppercase tracking-wider text-emerald-600 font-bold">NTUN Campus</span>
+                <h1 class="text-lg font-bold leading-none tracking-tight">Pass It On</h1>
+                <span class="text-[10px] uppercase tracking-widest text-[#34C759] font-bold">NTUN Campus</span>
             </div>
         </div>
         
@@ -33,91 +71,75 @@
                  data-callback="handleSignIn"
                  data-auto_select="false">
             </div>
-            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large"></div>
+            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-size="large"></div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
+    <main class="max-w-[1000px] mx-auto px-4 py-10">
         
-        <div id="login-placeholder" class="text-center py-20">
-            <div class="w-24 h-24 bg-emerald-50 border-2 border-emerald-100 text-emerald-600 rounded-[2rem] flex items-center justify-center text-4xl mx-auto mb-6 shadow-sm">🔒</div>
-            <h2 class="text-2xl font-bold mb-2 text-slate-800">เข้าใช้งานสำหรับนักเรียน NTUN</h2>
-            <p class="text-slate-500 mb-8 max-w-sm mx-auto text-sm">กรุณาล็อกอินด้วยอีเมลโรงเรียน (@ntun.ac.th) เพื่อความปลอดภัยและยืนยันตัวตนคนในพื้นที่</p>
+        <div id="login-placeholder" class="text-center py-20 animate-fade-in">
+            <div class="w-28 h-28 glass-card flex items-center justify-center text-5xl mx-auto mb-8 shadow-sm shadow-black/5">🔐</div>
+            <h2 class="text-3xl font-bold mb-3 tracking-tight">เข้าใช้งานสำหรับนักเรียน</h2>
+            <p class="text-gray-500 mb-8 max-w-sm mx-auto text-sm leading-relaxed">กรุณาล็อกอินด้วยอีเมล @ntun.ac.th เพื่อยืนยันตัวตนก่อนเข้าสู่ระบบ</p>
         </div>
 
-        <section id="admin-panel" class="mb-10 p-6 bg-slate-900 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
+        <section id="admin-panel" class="mb-10 p-6 bg-[#1C1C1E] rounded-[32px] text-white shadow-2xl relative overflow-hidden">
             <div class="relative z-10">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold flex items-center gap-2">
-                        <span class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
-                        Admin Dashboard
-                    </h2>
-                    <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full border border-white/20 uppercase tracking-wide">ส่วนควบคุมสูงสุด</span>
+                    <h2 class="text-xl font-semibold flex items-center gap-2">Admin Dashboard</h2>
+                    <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full uppercase tracking-wide">ส่วนควบคุมสูงสุด</span>
                 </div>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white/5 p-5 rounded-3xl border border-white/10">
-                        <p class="text-sm font-semibold mb-3">เพิ่มแอดมินใหม่</p>
+                    <div class="bg-white/5 p-5 rounded-[24px] border border-white/10">
+                        <p class="text-sm font-medium mb-3">เพิ่มแอดมินใหม่</p>
                         <div class="flex gap-2">
-                            <input type="email" id="new-admin-email" placeholder="example@ntun.ac.th" class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-400 outline-none focus:border-emerald-400 transition">
-                            <button onclick="addAdmin()" class="bg-white text-slate-900 px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-400 hover:text-slate-900 transition shadow-md">เพิ่มสิทธิ์</button>
+                            <input type="email" id="new-admin-email" placeholder="example@ntun.ac.th" class="flex-1 bg-white/10 border border-white/20 rounded-2xl px-4 py-2 text-sm text-white placeholder-gray-400 outline-none focus:border-[#34C759] transition">
+                            <button onclick="addAdmin()" class="bg-white text-black px-4 py-2 rounded-2xl text-sm font-semibold hover:bg-[#34C759] hover:text-white transition">เพิ่ม</button>
                         </div>
                     </div>
-                    <div class="bg-white/5 p-5 rounded-3xl border border-white/10">
-                        <p class="text-sm font-semibold mb-3">รายชื่อทีมแอดมิน</p>
-                        <ul id="admin-list" class="flex flex-wrap gap-2">
-                            </ul>
+                    <div class="bg-white/5 p-5 rounded-[24px] border border-white/10">
+                        <p class="text-sm font-medium mb-3">รายชื่อทีมแอดมิน</p>
+                        <ul id="admin-list" class="flex flex-wrap gap-2"></ul>
                     </div>
                 </div>
             </div>
-            <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-emerald-500/20 blur-[80px] rounded-full pointer-events-none"></div>
         </section>
 
         <div id="app-content">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                 
-                <div class="lg:col-span-4">
-                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 sticky top-28">
-                        <h3 class="text-xl font-bold mb-6 text-slate-800">ส่งต่อของวันนี้ 🎁</h3>
+                <div class="md:col-span-5 lg:col-span-4">
+                    <div class="glass-card p-6 sticky top-24">
+                        <h3 class="text-xl font-bold mb-5 tracking-tight text-black">ส่งต่อของวันนี้ 🎁</h3>
                         <form id="post-form" onsubmit="handlePost(event)">
                             <div class="space-y-4">
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">ชื่อสิ่งของ</label>
-                                    <input type="text" id="itemName" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="เช่น หนังสือเรียน ม.4, เสื้อพละ">
+                                    <input type="text" id="itemName" required class="w-full glass-input px-4 py-3.5 text-sm transition-all" placeholder="ชื่อสิ่งของ (เช่น หนังสือ, เสื้อพละ)">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">หมวดหมู่</label>
-                                    <select id="itemCat" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:border-emerald-500 transition-all">
+                                    <select id="itemCat" class="w-full glass-input px-4 py-3.5 text-sm transition-all text-gray-700">
                                         <option>📚 หนังสือเรียน</option>
                                         <option>👕 ชุดนักเรียน</option>
                                         <option>✏️ อุปกรณ์การเรียน</option>
-                                        <option>⚽ อื่นๆ</option>
+                                        <option>📦 อื่นๆ</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">รายละเอียดและจุดนัดรับ</label>
-                                    <textarea id="itemDetail" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="บอกสภาพของ และจุดที่สะดวกนัดรับ..."></textarea>
+                                    <textarea id="itemDetail" rows="3" required class="w-full glass-input px-4 py-3.5 text-sm transition-all resize-none" placeholder="รายละเอียดและจุดนัดรับ..."></textarea>
                                 </div>
-                                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 shadow-xl shadow-slate-200/50 transition-all active:scale-[0.98]">
+                                <button type="submit" class="w-full bg-black text-white font-semibold py-3.5 rounded-2xl hover:bg-[#34C759] shadow-lg shadow-black/10 transition-all active:scale-[0.98]">
                                     แชร์ลงแพลตฟอร์ม
                                 </button>
-                                <p class="text-[9px] text-center text-slate-400 px-2 mt-2 leading-relaxed">
-                                    *ระบบมี AI คัดกรองคำอัตโนมัติ ไม่อนุญาตให้โพสต์สิ่งของผิดกฎหมาย ยาเสพติด หรือของใช้ส่วนตัวเพื่อความปลอดภัย
-                                </p>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <div class="lg:col-span-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-bold text-slate-800">รายการล่าสุด</h3>
-                        <div class="flex gap-2 items-center bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
-                            <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase">Live</span>
-                        </div>
+                <div class="md:col-span-7 lg:col-span-8">
+                    <div class="flex justify-between items-center mb-6 px-2">
+                        <h3 class="text-xl font-bold tracking-tight text-black">รายการส่งต่อ</h3>
                     </div>
-                    <div id="feed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="feed" class="flex flex-col gap-4">
                         </div>
                 </div>
 
@@ -126,22 +148,10 @@
     </main>
 
     <script>
-        // ==========================================
-        // 1. ตั้งค่าพื้นฐาน (Configuration)
-        // ==========================================
         const MASTER_ADMIN = "aceaa372@gmail.com";
         const SCHOOL_DOMAIN = "ntun.ac.th";
-        
-        // คำต้องห้าม (เซ็นเซอร์)
-        const FORBIDDEN_KEYWORDS = [
-            "ยาบ้า", "ยาไอซ์", "กัญชา", "บุหรี่", "เหล้า", "เบียร์", "ปืน", "มีด", 
-            "กางเกงใน", "ยกทรง", "บรา", "ชุดชั้นใน", "กางเกงลิง", "underwear", "bra", 
-            "เซ็กส์", "sex", "พนัน", "หวย"
-        ];
+        const FORBIDDEN_KEYWORDS = ["ยาบ้า", "ยาไอซ์", "กัญชา", "บุหรี่", "เหล้า", "เบียร์", "ปืน", "มีด", "กางเกงใน", "ยกทรง", "บรา", "ชุดชั้นใน", "กางเกงลิง", "underwear", "bra", "เซ็กส์", "sex", "พนัน", "หวย"];
 
-        // ==========================================
-        // 2. จัดการฐานข้อมูลจำลอง (LocalStorage)
-        // ==========================================
         let posts = [];
         let admins = [MASTER_ADMIN];
         let currentUser = null;
@@ -151,105 +161,95 @@
             const savedAdmins = localStorage.getItem('ntun_admins');
             if (savedPosts) posts = JSON.parse(savedPosts);
             if (savedAdmins) admins = JSON.parse(savedAdmins);
-        } catch(e) {
-            console.error("Local Storage Error:", e);
-        }
+        } catch(e) { console.error("Storage Error", e); }
 
         // ==========================================
-        // 3. ระบบยืนยันตัวตน (Google Login)
+        // 1. ระบบยืนยันตัวตน (แก้ปัญหาภาษาไทย 100%)
         // ==========================================
         function handleSignIn(response) {
             try {
-                // ถอดรหัส JWT (รองรับภาษาไทย 100%)
+                // ใช้ TextDecoder เพื่อถอดรหัส UTF-8 (แก้ปัญหาชื่อภาษาไทยเป็นภาษาต่างดาว)
                 const base64Url = response.credential.split('.')[1];
                 const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-
-                const payload = JSON.parse(jsonPayload);
+                const binaryString = atob(base64);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const decoder = new TextDecoder('utf-8');
+                const payload = JSON.parse(decoder.decode(bytes));
+                
                 const email = payload.email;
                 const domain = payload.hd || email.split('@')[1]; 
 
-                // เช็คว่าเป็นอีเมลโรงเรียน หรือ แอดมินหลัก
                 if (domain === SCHOOL_DOMAIN || email === MASTER_ADMIN) {
                     currentUser = payload;
                     
-                    // อัปเดต UI แถบด้านบน
                     document.getElementById('auth-section').innerHTML = `
-                        <div class="flex items-center gap-3 bg-white p-1 pr-4 rounded-2xl border border-slate-200 shadow-sm">
-                            <img src="${payload.picture}" class="w-8 h-8 rounded-xl border border-slate-100" referrerpolicy="no-referrer">
-                            <div class="text-left leading-tight hidden sm:block">
-                                <p class="text-[10px] font-bold text-slate-800">${payload.name}</p>
-                                <p class="text-[9px] text-slate-500">${payload.email}</p>
+                        <div class="flex items-center gap-2 glass-card pl-1.5 pr-4 py-1.5 shadow-sm">
+                            <img src="${payload.picture}" class="w-8 h-8 rounded-full" referrerpolicy="no-referrer">
+                            <div class="text-left hidden sm:block">
+                                <p class="text-[11px] font-bold text-black leading-tight">${payload.name}</p>
+                                <p class="text-[9px] text-gray-500 leading-tight">${payload.email}</p>
                             </div>
-                            <button onclick="location.reload()" class="ml-2 text-slate-400 hover:text-rose-500 transition font-bold" title="ออกระบบ">✕</button>
+                            <button onclick="location.reload()" class="ml-2 w-6 h-6 rounded-full bg-black/5 text-gray-600 hover:bg-red-100 hover:text-red-500 flex items-center justify-center transition text-xs">✕</button>
                         </div>
                     `;
-                    
-                    unlockApp(); // สั่งปลดล็อกหน้าแอป
+                    unlockApp();
                 } else {
-                    alert(`❌ ปฏิเสธการเข้าใช้งาน!\nระบบนี้เป็นพื้นที่ปิด อนุญาตเฉพาะอีเมล @${SCHOOL_DOMAIN} เท่านั้น\nอีเมลที่คุณใช้คือ: ${email}`);
+                    alert(`❌ ไม่อนุญาตให้เข้าใช้งาน\nต้องใช้อีเมล @${SCHOOL_DOMAIN} เท่านั้น`);
                 }
             } catch (error) {
-                console.error("Authentication Error:", error);
-                alert("⚠️ เกิดข้อผิดพลาดในการอ่านข้อมูลจาก Google กรุณาลองใหม่อีกครั้ง");
+                console.error("Auth Error:", error);
+                alert("เกิดข้อผิดพลาดในการดึงข้อมูลจาก Google");
             }
         }
 
         function unlockApp() {
-            // ซ่อนหน้าล็อกอิน และ แสดงหน้าแอปหลัก โดยแก้ Style โดยตรง
             document.getElementById('login-placeholder').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
-
-            // ถ้าคนนี้เป็นแอดมิน ให้แสดงหน้า Admin
             if (admins.includes(currentUser.email)) {
                 document.getElementById('admin-panel').style.display = 'block';
                 renderAdminList();
             }
-            
-            // โหลดฟีดข้อมูล
             renderFeed();
         }
 
         // ==========================================
-        // 4. ระบบจัดการแอดมิน
+        // 2. ระบบจัดการแอดมิน
         // ==========================================
         function addAdmin() {
             const emailInput = document.getElementById('new-admin-email');
             const email = emailInput.value.trim().toLowerCase();
-            
-            if (!email) return alert("กรุณาใส่อีเมล");
-            if (admins.includes(email)) return alert("อีเมลนี้เป็นแอดมินอยู่แล้ว");
-            
-            admins.push(email);
-            localStorage.setItem('ntun_admins', JSON.stringify(admins));
-            renderAdminList();
-            emailInput.value = "";
-            alert("✅ เพิ่มสิทธิ์แอดมินสำเร็จ");
+            if (!email) return;
+            if (!admins.includes(email)) {
+                admins.push(email);
+                localStorage.setItem('ntun_admins', JSON.stringify(admins));
+                renderAdminList();
+                emailInput.value = "";
+            }
         }
 
         function renderAdminList() {
             const list = document.getElementById('admin-list');
             list.innerHTML = admins.map(email => `
-                <li class="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 text-[11px] font-medium text-slate-200">
-                    ${email} 
-                    ${email !== MASTER_ADMIN ? `<button onclick="removeAdmin('${email}')" class="text-rose-400 hover:text-rose-300 ml-1 font-bold text-sm leading-none">×</button>` : '👑'}
+                <li class="bg-white/10 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 text-[11px] font-medium text-gray-200">
+                    ${email} ${email !== MASTER_ADMIN ? `<button onclick="removeAdmin('${email}')" class="text-red-400 font-bold ml-1 hover:scale-110 transition">✕</button>` : '👑'}
                 </li>
             `).join('');
         }
 
         function removeAdmin(email) {
-            if (confirm(`คุณต้องการยกเลิกสิทธิ์แอดมินของ ${email} ใช่หรือไม่?`)) {
+            if (confirm("ลบแอดมิน?")) {
                 admins = admins.filter(a => a !== email);
                 localStorage.setItem('ntun_admins', JSON.stringify(admins));
                 renderAdminList();
-                if (email === currentUser.email) location.reload(); // ถ้ายกเลิกตัวเองให้รีเฟรช
+                if (email === currentUser.email) location.reload();
             }
         }
 
         // ==========================================
-        // 5. ระบบจัดการโพสต์ (พร้อม Filter)
+        // 3. ระบบโพสต์ และ ระบบจอง (Reserve System)
         // ==========================================
         function handlePost(e) {
             e.preventDefault();
@@ -257,16 +257,12 @@
             const detail = document.getElementById('itemDetail').value;
             const cat = document.getElementById('itemCat').value;
 
-            // กรองคำหยาบ / ของผิดกฎหมาย
             const fullText = (name + " " + detail).toLowerCase();
-            const hasForbidden = FORBIDDEN_KEYWORDS.some(word => fullText.includes(word.toLowerCase()));
-
-            if (hasForbidden) {
-                alert("🚨 ไม่สามารถโพสต์ได้!\nระบบตรวจพบคำหรือสิ่งของที่ผิดระเบียบของโรงเรียน");
+            if (FORBIDDEN_KEYWORDS.some(word => fullText.includes(word.toLowerCase()))) {
+                alert("🚨 ตรวจพบคำไม่เหมาะสม ไม่อนุญาตให้โพสต์");
                 return;
             }
 
-            // สร้าง Object ข้อมูล
             const newPost = {
                 id: Date.now(),
                 user: currentUser.name,
@@ -275,14 +271,51 @@
                 name: name,
                 detail: detail,
                 cat: cat,
-                date: new Date().toLocaleDateString('th-TH')
+                date: new Date().toLocaleDateString('th-TH'),
+                status: 'available', // สถานะ: available, reserved, completed
+                reservedBy: null
             };
 
-            posts.unshift(newPost); // เพิ่มไว้บนสุด
-            localStorage.setItem('ntun_posts', JSON.stringify(posts));
+            posts.unshift(newPost);
+            saveData();
             document.getElementById('post-form').reset();
             renderFeed();
-            alert("✅ ลงประกาศสำเร็จ!");
+        }
+
+        // ฟังก์ชันกดจอง
+        function reservePost(id) {
+            const post = posts.find(p => p.id === id);
+            if(post.email === currentUser.email) {
+                return alert("คุณไม่สามารถจองของตัวเองได้ครับ");
+            }
+            if (confirm(`ยืนยันการจอง "${post.name}" ใช่หรือไม่?\nกรุณาติดต่อนัดรับของกับเจ้าของโพสต์`)) {
+                post.status = 'reserved';
+                post.reservedBy = currentUser.name;
+                saveData();
+                renderFeed();
+            }
+        }
+
+        // ฟังก์ชันยืนยันส่งมอบ (เฉพาะเจ้าของโพสต์)
+        function confirmDelivery(id) {
+            const post = posts.find(p => p.id === id);
+            if (confirm(`ยืนยันว่าส่งมอบ "${post.name}" ให้กับ ${post.reservedBy} เรียบร้อยแล้ว?`)) {
+                post.status = 'completed';
+                saveData();
+                renderFeed();
+            }
+        }
+
+        function deletePost(id) {
+            if (confirm("ลบโพสต์นี้หรือไม่?")) {
+                posts = posts.filter(p => p.id !== id);
+                saveData();
+                renderFeed();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('ntun_posts', JSON.stringify(posts));
         }
 
         function renderFeed() {
@@ -290,40 +323,60 @@
             const isAdmin = admins.includes(currentUser.email);
             
             if (posts.length === 0) {
-                feed.innerHTML = '<div class="col-span-full py-16 text-center text-slate-400 bg-white rounded-[2.5rem] border border-slate-100 border-dashed">ยังไม่มีรายการส่งต่อในขณะนี้ เป็นคนแรกที่เริ่มแชร์เลย!</div>';
+                feed.innerHTML = '<div class="p-10 text-center text-gray-400 glass-card">ยังไม่มีรายการส่งต่อครับ</div>';
                 return;
             }
 
-            feed.innerHTML = posts.map(post => `
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-between hover:border-emerald-400 hover:shadow-md transition-all duration-300">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-[9px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full uppercase tracking-wide border border-slate-200">${post.cat}</span>
-                            ${isAdmin ? `<button onclick="deletePost(${post.id})" class="text-rose-500 text-[10px] font-bold bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-lg transition">ลบ</button>` : ''}
-                        </div>
-                        <h4 class="text-lg font-bold text-slate-800 mb-1 leading-tight">${post.name}</h4>
-                        <p class="text-[12px] text-slate-500 mb-5 line-clamp-3 leading-relaxed">${post.detail}</p>
+            feed.innerHTML = posts.map(post => {
+                const isOwner = post.email === currentUser.email;
+                
+                // ตรวจสอบสถานะเพื่อกำหนด UI ของการ์ด
+                let cardStyle = "glass-card p-5 transition-all duration-300";
+                let actionBtn = "";
+                
+                if (post.status === 'completed') {
+                    // สถานะ: ส่งมอบสำเร็จ (ซ่อนหรือทำให้จางสุดๆ)
+                    cardStyle += " opacity-40 grayscale";
+                    actionBtn = `<span class="text-xs font-bold text-[#34C759] bg-green-100 px-3 py-1.5 rounded-full">ส่งมอบสำเร็จแล้ว</span>`;
+                } 
+                else if (post.status === 'reserved') {
+                    // สถานะ: ถูกจองแล้ว (บัตรสีขาว/จางๆ ขาวโพลน จองซ้ำไม่ได้)
+                    cardStyle = "bg-white/90 backdrop-blur-3xl border border-white p-5 rounded-[28px] opacity-70";
+                    if (isOwner) {
+                        // ถ้าเป็นเจ้าของ ให้มีปุ่มกดยืนยันการส่งมอบ
+                        actionBtn = `<button onclick="confirmDelivery(${post.id})" class="text-xs font-bold bg-[#34C759] hover:bg-green-600 text-white px-4 py-2 rounded-full shadow-md transition active:scale-95 animate-pulse">ยืนยันว่าให้ของแล้ว</button>`;
+                    } else {
+                        // คนอื่นมองเห็นว่าจองแล้ว
+                        actionBtn = `<span class="text-xs font-bold text-gray-500 bg-gray-100 px-4 py-2 rounded-full">จองแล้วโดยคุณ ${post.reservedBy}</span>`;
+                    }
+                } 
+                else {
+                    // สถานะ: ว่าง (Available)
+                    actionBtn = `<button onclick="reservePost(${post.id})" class="text-xs font-bold bg-black hover:bg-[#34C759] text-white px-4 py-2 rounded-full shadow-md transition active:scale-95">สนใจจอง</button>`;
+                }
+
+                return `
+                <div class="${cardStyle}">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] font-bold bg-black/5 text-black/60 px-3 py-1 rounded-full uppercase tracking-wider">${post.cat}</span>
+                        ${isAdmin || isOwner ? `<button onclick="deletePost(${post.id})" class="text-red-400 hover:bg-red-50 text-[10px] font-bold px-2 py-1 rounded-lg transition">ลบ</button>` : ''}
                     </div>
-                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <h4 class="text-lg font-bold text-black mb-1">${post.name}</h4>
+                    <p class="text-sm text-gray-600 mb-4 line-clamp-2">${post.detail}</p>
+                    
+                    <div class="pt-3 flex items-center justify-between border-t border-black/5">
                         <div class="flex items-center gap-2">
-                            <img src="${post.avatar}" class="w-7 h-7 rounded-full shadow-sm border border-slate-100" referrerpolicy="no-referrer">
-                            <div class="leading-tight">
-                                <span class="block text-[10px] font-bold text-slate-700 truncate max-w-[90px]">${post.user}</span>
-                                <span class="block text-[8px] text-slate-400">${post.date}</span>
+                            <img src="${post.avatar}" class="w-6 h-6 rounded-full border border-white/50" referrerpolicy="no-referrer">
+                            <div class="leading-none">
+                                <span class="block text-[11px] font-semibold text-black">${post.user}</span>
+                                <span class="block text-[9px] text-gray-400 mt-0.5">${post.date}</span>
                             </div>
                         </div>
-                        <button onclick="alert('📨 สนใจรับของชิ้นนี้\\nกรุณาติดต่อเจ้าของผ่านอีเมล: ${post.email}\\n\\n*แนะนำให้นัดรับของที่จุด Drop-off ส่วนกลางของโรงเรียนเพื่อความปลอดภัยครับ')" class="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold shadow-md shadow-emerald-200 active:scale-95 transition">ขอรับของ</button>
+                        ${actionBtn}
                     </div>
                 </div>
-            `).join('');
-        }
-
-        function deletePost(id) {
-            if (confirm("แอดมินยืนยันที่จะลบโพสต์นี้หรือไม่?")) {
-                posts = posts.filter(p => p.id !== id);
-                localStorage.setItem('ntun_posts', JSON.stringify(posts));
-                renderFeed();
-            }
+                `;
+            }).join('');
         }
     </script>
 </body>
