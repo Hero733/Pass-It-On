@@ -3,127 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pass It On @ NTUN | iOS 27 Fluid UI (Ultimate)</title>
+    <title>Pass It On @ NTUN | App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 🎨 Dynamic Theme Variables */
-        :root { 
-            font-family: 'Noto Sans Thai', -apple-system, sans-serif;
-            --bg-base: rgb(244, 244, 247);
-            --card-base: rgb(255, 255, 255);
-            --text-base: rgb(29, 29, 31);
-            --mist-top: rgba(244, 244, 247, 1);
-            --mist-bot: rgba(244, 244, 247, 0);
-        }
-        
-        body { 
-            background: var(--bg-base); 
-            color: var(--text-base); 
-            -webkit-font-smoothing: antialiased; 
-            min-height: 200vh; /* เผื่อให้เลื่อนลงไปได้ยาวๆ */
-        }
-
-        /* 🌫️ Misty Top Effect */
-        .mist-overlay {
-            position: sticky;
-            top: 72px; /* อยู่ใต้ Nav */
-            left: 0;
-            right: 0;
-            height: 90px;
-            background: linear-gradient(to bottom, var(--mist-top) 0%, var(--mist-bot) 100%);
-            z-index: 40;
-            pointer-events: none;
-        }
-
-        /* iOS 27 Glassmorphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(30px) saturate(200%);
-            -webkit-backdrop-filter: blur(30px) saturate(200%);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        /* 🖼️ Card & Floating Animation */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-        }
-        
-        .ios-card {
-            background: var(--card-base);
-            border-radius: 35px;
-            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.04);
-            transition: all 0.5s cubic-bezier(0.15, 0.83, 0.66, 1);
-            color: var(--text-base);
-        }
-        .float-anim { animation: float 6s ease-in-out infinite; }
-        
-        .ios-card:hover {
-            transform: translateY(-5px) scale(1.02) !important;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
-            animation-play-state: paused;
-        }
-
-        /* 📸 Carousel Slider (ใส่หลายรูป) */
-        .carousel {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-        }
-        .carousel::-webkit-scrollbar { display: none; }
-        .carousel-item {
-            flex: 0 0 100%;
-            scroll-snap-align: center;
-            height: 220px;
-            object-fit: cover;
-        }
-
-        /* ปุ่มกดแบบนุ่มนวล */
+        :root { font-family: 'Noto Sans Thai', -apple-system, sans-serif; }
+        body { background: #f4f4f7; color: #1d1d1f; -webkit-font-smoothing: antialiased; }
+        .glass { background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .ios-card { background: #ffffff; border-radius: 35px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.04); transition: all 0.5s cubic-bezier(0.15, 0.83, 0.66, 1); }
+        .ios-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); }
         .btn-ios { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn-ios:active { transform: scale(0.92); opacity: 0.8; }
         ::-webkit-scrollbar { width: 0px; }
         #app-content, #admin-panel { display: none; }
-
-        /* แอนิเมชันตอนโหลด */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in { animation: fadeIn 0.8s ease-out forwards; }
     </style>
 </head>
 <body class="overflow-x-hidden">
 
-    <div id="bg-glow-1" class="fixed top-[-10%] right-[-10%] w-[70vw] h-[70vw] bg-blue-200/40 rounded-full blur-[120px] z-[-1] transition-opacity duration-700"></div>
-    <div id="bg-glow-2" class="fixed bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-emerald-200/40 rounded-full blur-[100px] z-[-1] transition-opacity duration-700"></div>
+    <div class="fixed top-[-10%] right-[-10%] w-[70vw] h-[70vw] bg-blue-200/30 rounded-full blur-[120px] z-[-1]"></div>
+    <div class="fixed bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-emerald-200/30 rounded-full blur-[100px] z-[-1]"></div>
 
-    <nav class="sticky top-0 z-[100] glass px-6 py-4 flex justify-between items-center transition-colors">
+    <nav class="sticky top-0 z-[100] glass px-6 py-4 flex justify-between items-center border-b border-black/5">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-400 rounded-[16px] flex items-center justify-center text-white shadow-lg shadow-emerald-200">
                 <span class="text-2xl font-bold">P</span>
             </div>
             <div>
-                <h1 class="text-xl font-bold tracking-tight leading-none text-black">Pass It On</h1>
+                <h1 class="text-xl font-bold tracking-tight leading-none">Pass It On</h1>
                 <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">NTUN Campus</span>
             </div>
+            <a href="guide.html" class="ml-4 text-xs font-bold text-gray-400 hover:text-black transition-colors underline decoration-2 underline-offset-4">วิธีใช้</a>
         </div>
 
         <div id="auth-section">
-            <div id="g_id_onload" 
-                 data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" 
-                 data-callback="handleSignIn">
-            </div>
+            <div id="g_id_onload" data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" data-callback="handleSignIn"></div>
             <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
         </div>
     </nav>
 
-    <div class="mist-overlay"></div>
-
-    <main class="max-w-[1280px] mx-auto px-4 md:px-8 py-8 relative z-10">
+    <main class="max-w-[1280px] mx-auto px-4 md:px-8 py-8">
         
         <div id="login-placeholder" class="text-center py-32 fade-in">
-            <h2 class="text-5xl md:text-7xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-black to-gray-400 bg-clip-text text-transparent" style="color: var(--text-base);">
+            <h2 class="text-5xl md:text-7xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-black to-gray-400 bg-clip-text text-transparent">
                 Sharing is the <br> new shopping.
             </h2>
             <p class="text-gray-500 text-lg md:text-xl font-medium">เข้าใช้งานระบบส่งต่อของโรงเรียนเพื่อสังคมที่ยั่งยืน</p>
@@ -143,29 +68,17 @@
                 </div>
 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10">
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">รายการทั้งหมด</span>
-                        <p id="stat-total" class="text-3xl font-bold mt-1">0</p>
-                    </div>
-                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10">
-                        <span class="text-[10px] font-bold text-orange-400 uppercase tracking-widest">กำลังรอรับของ</span>
-                        <p id="stat-reserved" class="text-3xl font-bold mt-1">0</p>
-                    </div>
-                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10">
-                        <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">สำเร็จแล้ว</span>
-                        <p id="stat-done" class="text-3xl font-bold mt-1">0</p>
-                    </div>
-                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10">
-                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">แอดมินในระบบ</span>
-                        <p id="stat-admin" class="text-3xl font-bold mt-1">0</p>
-                    </div>
+                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10"><span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">รายการทั้งหมด</span><p id="stat-total" class="text-3xl font-bold mt-1">0</p></div>
+                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10"><span class="text-[10px] font-bold text-orange-400 uppercase tracking-widest">กำลังรอรับของ</span><p id="stat-reserved" class="text-3xl font-bold mt-1">0</p></div>
+                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10"><span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">สำเร็จแล้ว</span><p id="stat-done" class="text-3xl font-bold mt-1">0</p></div>
+                    <div class="bg-white/5 p-6 rounded-[28px] border border-white/10"><span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">แอดมินในระบบ</span><p id="stat-admin" class="text-3xl font-bold mt-1">0</p></div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="bg-white/5 p-6 rounded-[30px] border border-white/10">
                         <h3 class="text-sm font-bold mb-4">➕ เพิ่มผู้ช่วยแอดมิน</h3>
                         <div class="flex gap-2">
-                            <input type="email" id="new-admin-email" placeholder="email@ntun.ac.th" class="flex-1 bg-white/10 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-emerald-500 text-white">
+                            <input type="email" id="new-admin-email" placeholder="email@ntun.ac.th" class="flex-1 bg-white/10 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-emerald-500">
                             <button onclick="addAdmin()" class="bg-white text-black px-6 py-3.5 rounded-2xl text-sm font-bold btn-ios">เพิ่ม</button>
                         </div>
                     </div>
@@ -181,35 +94,37 @@
         <div id="app-content" class="fade-in">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 
-                <div class="lg:col-span-4 lg:sticky lg:top-32 h-fit">
-                    <div class="ios-card p-8 border border-gray-100/10">
+                <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
+                    <div class="ios-card p-8">
                         <h3 class="text-2xl font-bold mb-6 tracking-tight">แชร์ของของคุณ 🎁</h3>
                         <form id="post-form" onsubmit="handlePost(event)">
-                            <div class="space-y-5">
+                            <div class="space-y-4">
                                 <div class="relative group">
-                                    <input type="file" id="itemImages" accept="image/*" multiple class="hidden" onchange="previewImages(this)">
-                                    <div onclick="document.getElementById('itemImages').click()" class="w-full h-52 bg-black/5 border-2 border-dashed border-black/10 rounded-[30px] flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-50 hover:border-emerald-200 transition-all overflow-hidden relative">
+                                    <input type="file" id="itemImage" accept="image/*" class="hidden" onchange="previewImage(this)">
+                                    <div onclick="document.getElementById('itemImage').click()" class="w-full h-52 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[30px] flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-50 hover:border-emerald-200 transition-all overflow-hidden relative">
                                         <div id="preview-placeholder" class="text-center">
                                             <span class="text-4xl block mb-2">📸</span>
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">แตะเพื่อเพิ่มหลายรูปภาพ</p>
+                                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">แตะเพื่อเพิ่มรูปภาพ</p>
                                         </div>
-                                        <div id="img-preview-container" class="hidden w-full h-full flex p-2 gap-2 overflow-x-auto"></div>
+                                        <img id="image-preview-el" class="hidden w-full h-full object-cover">
                                         <div id="remove-img" onclick="event.stopPropagation(); removeSelectedImg();" class="hidden absolute top-3 right-3 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center backdrop-blur-md">✕</div>
                                     </div>
                                 </div>
 
-                                <input type="text" id="itemName" required class="w-full bg-black/5 border border-transparent rounded-2xl px-5 py-4 text-sm focus:bg-white focus:text-black focus:border-emerald-500 outline-none transition-all placeholder:text-gray-400" placeholder="คุณจะให้อะไร?">
+                                <input type="text" id="itemName" required class="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm focus:bg-white focus:border-emerald-500 outline-none transition-all" placeholder="คุณจะให้อะไร?">
                                 
-                                <select id="itemCat" class="w-full bg-black/5 border border-transparent rounded-2xl px-5 py-4 text-sm outline-none appearance-none focus:bg-white focus:text-black focus:border-emerald-500">
+                                <select id="itemCat" class="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm outline-none appearance-none">
                                     <option>📚 หนังสือเรียน</option>
                                     <option>👕 ชุดนักเรียน / พละ</option>
                                     <option>✏️ อุปกรณ์การเรียน</option>
                                     <option>📦 อื่นๆ</option>
                                 </select>
 
-                                <textarea id="itemDetail" rows="3" required class="w-full bg-black/5 border border-transparent rounded-2xl px-5 py-4 text-sm outline-none focus:bg-white focus:text-black focus:border-emerald-500 transition-all resize-none placeholder:text-gray-400" placeholder="รายละเอียดสิ่งของ และจุดนัดรับ..."></textarea>
+                                <input type="text" id="itemContact" required class="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm focus:bg-white focus:border-emerald-500 outline-none transition-all" placeholder="ช่องทางติดต่อ (Line ID, IG, หรือเบอร์โทร)">
 
-                                <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-5 rounded-2xl shadow-xl shadow-emerald-500/30 hover:bg-emerald-600 transition-all btn-ios">
+                                <textarea id="itemDetail" rows="3" required class="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm outline-none focus:bg-white focus:border-emerald-500 transition-all resize-none" placeholder="รายละเอียดสิ่งของ และจุดนัดรับ..."></textarea>
+
+                                <button type="submit" class="w-full bg-[#1d1d1f] text-white font-bold py-5 rounded-2xl shadow-xl hover:bg-black transition-all btn-ios">
                                     แชร์ลงบอร์ดทันที
                                 </button>
                             </div>
@@ -220,313 +135,18 @@
                 <div class="lg:col-span-8">
                     <div class="flex justify-between items-center mb-8 px-2">
                         <h3 class="text-3xl font-bold tracking-tight">Feed ล่าสุด</h3>
-                        <div class="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-black/5">
+                        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-black/5">
                             <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                            <span class="text-[10px] font-bold text-gray-600 uppercase">Live Update</span>
+                            <span class="text-[10px] font-bold text-gray-500 uppercase">Live Update</span>
                         </div>
                     </div>
-                    
-                    <div id="feed" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        </div>
+                    <div id="feed" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                 </div>
 
             </div>
         </div>
     </main>
 
-    <script>
-        // --- 🌑 Dynamic Scroll Logic (White to Black) ---
-        window.addEventListener('scroll', () => {
-            // เมื่อเลื่อนถึงประมาณ 800px จะเปลี่ยนเป็นสีดำสนิท
-            const scrollRatio = Math.min(window.scrollY / 800, 1);
-            
-            // Background: 244 (White/Gray) -> 15 (Dark)
-            const bgVal = Math.floor(244 - (scrollRatio * (244 - 15)));
-            // Card: 255 (White) -> 25 (Dark Gray)
-            const cardVal = Math.floor(255 - (scrollRatio * (255 - 25)));
-            // Text: 29 (Dark) -> 240 (White/Gray)
-            const textVal = Math.floor(29 + (scrollRatio * (240 - 29)));
-
-            document.documentElement.style.setProperty('--bg-base', `rgb(${bgVal}, ${bgVal}, ${bgVal})`);
-            document.documentElement.style.setProperty('--card-base', `rgb(${cardVal}, ${cardVal}, ${cardVal})`);
-            document.documentElement.style.setProperty('--text-base', `rgb(${textVal}, ${textVal}, ${textVal})`);
-            
-            // อัปเดตสีหมอกให้กลมกลืนกับพื้นหลัง
-            document.documentElement.style.setProperty('--mist-top', `rgba(${bgVal}, ${bgVal}, ${bgVal}, 1)`);
-            document.documentElement.style.setProperty('--mist-bot', `rgba(${bgVal}, ${bgVal}, ${bgVal}, 0)`);
-
-            // ลดความสว่างของแสงพื้นหลังตอนลงลึก (Glow Effects)
-            document.getElementById('bg-glow-1').style.opacity = 1 - scrollRatio;
-            document.getElementById('bg-glow-2').style.opacity = 1 - scrollRatio;
-        });
-
-        // --- Configuration ---
-        const MASTER_ADMIN = "aceaa372@gmail.com";
-        const SCHOOL_DOMAIN = "ntun.ac.th";
-        const FORBIDDEN = ["ยาบ้า", "กัญชา", "เหล้า", "กางเกงใน", "ยกทรง", "เพศ", "sex"];
-
-        let posts = JSON.parse(localStorage.getItem('ntun_v7_posts')) || [];
-        let admins = JSON.parse(localStorage.getItem('ntun_v7_admins')) || [MASTER_ADMIN];
-        let currentUser = null;
-        let selectedImagesBase64 = []; // เปลี่ยนเป็น Array สำหรับรับหลายรูป
-
-        // --- 1. Google Login ---
-        function handleSignIn(response) {
-            try {
-                const base64Url = response.credential.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-                const payload = JSON.parse(new TextDecoder().decode(bytes));
-
-                const email = payload.email;
-                const domain = payload.hd || email.split('@')[1];
-
-                if (domain === SCHOOL_DOMAIN || email === MASTER_ADMIN) {
-                    currentUser = payload;
-                    document.getElementById('auth-section').innerHTML = `
-                        <div class="flex items-center gap-3 bg-white/90 p-2 pr-5 rounded-[20px] border border-black/5 shadow-sm backdrop-blur-md">
-                            <img src="${payload.picture}" class="w-10 h-10 rounded-[12px] border border-black/5" referrerpolicy="no-referrer">
-                            <div class="hidden sm:block">
-                                <p class="text-[11px] font-bold leading-none text-black">${payload.name}</p>
-                                <p class="text-[9px] text-emerald-500 font-bold mt-1 uppercase">Student ID Verified</p>
-                            </div>
-                            <button onclick="location.reload()" class="ml-2 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-rose-50 hover:text-rose-500 transition text-[10px] text-black">✕</button>
-                        </div>
-                    `;
-                    unlock();
-                } else {
-                    alert(`❌ ปฏิเสธ: ระบบนี้อนุญาตเฉพาะนักเรียน @${SCHOOL_DOMAIN} เท่านั้น`);
-                }
-            } catch (err) { alert("Login Error"); }
-        }
-
-        function unlock() {
-            document.getElementById('login-placeholder').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            if (admins.includes(currentUser.email)) {
-                document.getElementById('admin-panel').style.display = 'block';
-                updateAdminStats();
-            }
-            renderFeed();
-        }
-
-        // --- 2. Multi Image Engine (บีบอัดหลายรูป) ---
-        async function previewImages(input) {
-            if (!input.files || input.files.length === 0) return;
-            const files = Array.from(input.files).slice(0, 4); // จำกัดให้ใส่ได้ทีละ 4 รูปกันเมมเต็ม
-            selectedImagesBase64 = [];
-            
-            const container = document.getElementById('img-preview-container');
-            container.innerHTML = '';
-            
-            for(let file of files) {
-                const base64 = await compressImg(file);
-                selectedImagesBase64.push(base64);
-                container.innerHTML += `<img src="${base64}" class="h-full w-24 object-cover rounded-[20px] shadow-sm border border-black/5">`;
-            }
-            
-            container.classList.remove('hidden');
-            document.getElementById('preview-placeholder').classList.add('hidden');
-            document.getElementById('remove-img').classList.remove('hidden');
-        }
-
-        function compressImg(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const maxW = 500; // บีบอัดเยอะหน่อยเพื่อเก็บได้หลายรูป
-                        const scale = maxW / img.width;
-                        canvas.width = maxW;
-                        canvas.height = img.height * scale;
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.6));
-                    }
-                }
-            });
-        }
-
-        function removeSelectedImg() {
-            selectedImagesBase64 = [];
-            document.getElementById('itemImages').value = '';
-            document.getElementById('img-preview-container').classList.add('hidden');
-            document.getElementById('preview-placeholder').classList.remove('hidden');
-            document.getElementById('remove-img').classList.add('hidden');
-        }
-
-        // --- 3. Post Logic ---
-        function handlePost(e) {
-            e.preventDefault();
-            const name = document.getElementById('itemName').value;
-            const detail = document.getElementById('itemDetail').value;
-            const cat = document.getElementById('itemCat').value;
-
-            if (FORBIDDEN.some(w => (name + detail).toLowerCase().includes(w))) {
-                return alert("⚠️ ตรวจพบคำไม่เหมาะสม กรุณาใช้คำสุภาพ");
-            }
-
-            const newPost = {
-                id: Date.now(),
-                user: currentUser.name,
-                email: currentUser.email,
-                avatar: currentUser.picture,
-                name, detail, cat,
-                images: selectedImagesBase64, // เก็บเป็น Array
-                status: 'available',
-                reservedBy: null,
-                date: new Date().toLocaleDateString('th-TH')
-            };
-
-            posts.unshift(newPost);
-            saveData();
-            renderFeed();
-            e.target.reset();
-            removeSelectedImg();
-            if (admins.includes(currentUser.email)) updateAdminStats();
-            alert("✅ ลงประกาศสำเร็จ!");
-        }
-
-        function renderFeed() {
-            const feed = document.getElementById('feed');
-            const isAdmin = admins.includes(currentUser.email);
-            
-            if (posts.length === 0) {
-                feed.innerHTML = `<div class="col-span-full py-20 text-center opacity-50 ios-card border-2 border-dashed border-gray-300 bg-transparent">ยังไม่มีของที่ส่งต่อในขณะนี้</div>`;
-                return;
-            }
-
-            feed.innerHTML = posts.map(post => {
-                const isOwner = post.email === currentUser.email;
-                let statusBadge = `<span class="bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-full text-[10px] font-bold">ว่าง</span>`;
-                let actionBtn = `<button onclick="reserve(${post.id})" class="bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-ios shadow-lg shadow-emerald-500/30">จองของ</button>`;
-                let cardClass = "ios-card overflow-hidden fade-in float-anim border border-gray-500/10"; // เพิ่ม float-anim
-
-                if (post.status === 'reserved') {
-                    statusBadge = `<span class="bg-orange-500/10 text-orange-500 px-3 py-1.5 rounded-full text-[10px] font-bold">จองแล้วโดย ${post.reservedBy}</span>`;
-                    actionBtn = isOwner ? 
-                        `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-ios animate-pulse">ยืนยันส่งแล้ว</button>` : 
-                        `<span class="text-xs text-gray-400 font-bold bg-black/5 px-4 py-2 rounded-xl">ไม่ว่าง</span>`;
-                    cardClass += " opacity-80 border-2 border-orange-500/20";
-                } else if (post.status === 'completed') {
-                    statusBadge = `<span class="bg-black/5 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-50">ส่งมอบสำเร็จ</span>`;
-                    actionBtn = `<span class="text-xs text-emerald-500 font-bold">✓ Success</span>`;
-                    cardClass += " grayscale opacity-30 scale-[0.98] !animation-none";
-                }
-
-                // Render Multi Images
-                let imageHtml = '<div class="w-full h-12 bg-black/5"></div>';
-                if (post.images && post.images.length > 1) {
-                    // แบบ Carousel (หลายรูป)
-                    imageHtml = `<div class="carousel rounded-t-[35px] overflow-hidden">${post.images.map(img => `<img src="${img}" class="carousel-item">`).join('')}</div>`;
-                } else if (post.images && post.images.length === 1) {
-                    // รูปเดียว
-                    imageHtml = `<img src="${post.images[0]}" class="w-full h-56 object-cover rounded-t-[35px]">`;
-                } else if (post.image) {
-                    // รองรับรูปจากเวอร์ชันเก่าที่ยังใช้ .image (string)
-                    imageHtml = `<img src="${post.image}" class="w-full h-56 object-cover rounded-t-[35px]">`;
-                }
-
-                return `
-                <div class="${cardClass}">
-                    ${imageHtml}
-                    <div class="p-7">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">${post.cat}</span>
-                            ${statusBadge}
-                        </div>
-                        <h4 class="text-xl font-bold mb-2 leading-tight">${post.name}</h4>
-                        <p class="text-sm opacity-60 mb-8 line-clamp-2 leading-relaxed">${post.detail}</p>
-                        
-                        <div class="flex items-center justify-between pt-5 border-t border-gray-500/10">
-                            <div class="flex items-center gap-3">
-                                <img src="${post.avatar}" class="w-7 h-7 rounded-full shadow-sm" referrerpolicy="no-referrer">
-                                <div class="leading-none">
-                                    <span class="block text-[11px] font-bold">${post.user}</span>
-                                    <span class="block text-[8px] opacity-50 mt-1">${post.date}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                ${actionBtn}
-                                ${isAdmin || isOwner ? `<button onclick="del(${post.id})" class="text-rose-500 w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 hover:bg-rose-500 hover:text-white transition-all">🗑️</button>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                `;
-            }).join('');
-        }
-
-        // --- 4. System Logic ---
-        function reserve(id) {
-            const p = posts.find(x => x.id === id);
-            if(p.email === currentUser.email) return alert("จองของตัวเองไม่ได้นะ!");
-            if(confirm(`ยืนยันการจอง "${p.name}"?\nกรุณาติดต่อเจ้าของโพสต์เพื่อรับของ`)) {
-                p.status = 'reserved';
-                p.reservedBy = currentUser.name;
-                saveData(); renderFeed(); updateAdminStats();
-            }
-        }
-
-        function complete(id) {
-            if(confirm("คุณส่งมอบของชิ้นนี้ให้เพื่อนเรียบร้อยแล้วใช่ไหม?")) {
-                posts.find(x => x.id === id).status = 'completed';
-                saveData(); renderFeed(); updateAdminStats();
-            }
-        }
-
-        function del(id) {
-            if(confirm("ลบโพสต์นี้ถาวร?")) {
-                posts = posts.filter(x => x.id !== id);
-                saveData(); renderFeed(); updateAdminStats();
-            }
-        }
-
-        function clearCompleted() {
-            if(confirm("ลบรายการที่ส่งมอบสำเร็จทั้งหมดเพื่อล้างกระดาน?")) {
-                posts = posts.filter(x => x.status !== 'completed');
-                saveData(); renderFeed(); updateAdminStats();
-            }
-        }
-
-        function addAdmin() {
-            const email = document.getElementById('new-admin-email').value.trim().toLowerCase();
-            if(email && !admins.includes(email)) {
-                admins.push(email);
-                localStorage.setItem('ntun_v7_admins', JSON.stringify(admins));
-                updateAdminStats();
-                document.getElementById('new-admin-email').value = "";
-                alert("เพิ่มแอดมินใหม่สำเร็จ");
-            }
-        }
-
-        function updateAdminStats() {
-            document.getElementById('stat-total').innerText = posts.length;
-            document.getElementById('stat-reserved').innerText = posts.filter(p => p.status === 'reserved').length;
-            document.getElementById('stat-done').innerText = posts.filter(p => p.status === 'completed').length;
-            document.getElementById('stat-admin').innerText = admins.length;
-            
-            document.getElementById('admin-list').innerHTML = admins.map(a => `
-                <div class="bg-white/10 px-4 py-2 rounded-2xl flex items-center gap-3 text-[11px] border border-white/5">
-                    <span class="w-2 h-2 bg-emerald-400 rounded-full"></span> ${a} 
-                    ${a !== MASTER_ADMIN ? `<button onclick="removeAdmin('${a}')" class="text-rose-400 font-bold ml-1 hover:scale-110">✕</button>` : '👑'}
-                </div>
-            `).join('');
-        }
-
-        function removeAdmin(a) {
-            if(confirm("ยกเลิกสิทธิ์แอดมินคนนี้?")) {
-                admins = admins.filter(x => x !== a);
-                localStorage.setItem('ntun_v7_admins', JSON.stringify(admins));
-                updateAdminStats();
-            }
-        }
-
-        function saveData() { localStorage.setItem('ntun_v7_posts', JSON.stringify(posts)); }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
