@@ -1,10 +1,11 @@
 // --- Configuration ---
 const MASTER_ADMIN = "aceaa372@gmail.com";
 const SCHOOL_DOMAIN = "ntun.ac.th";
+const SESSION_LIMIT = 24 * 60 * 60 * 1000; // 24 ชั่วโมง
 
 const FORBIDDEN = [
     "ยาบ้า", "กัญชา", "เหล้า", "เบียร์", "บุหรี่", "พอต", "vape", "กระท่อม",
-    "กางเกงใน", "ยกทรง", "เพศ", "sex", "ปืน", "มีด", "อาวุธ", "หวย", "การพนัน"
+    "เพศ", "sex", "ปืน", "มีด", "อาวุธ", "หวย", "การพนัน", "18+"
 ];
 
 // --- Data State ---
@@ -12,61 +13,40 @@ let posts = JSON.parse(localStorage.getItem('ntun_v4_posts')) || [];
 let admins = JSON.parse(localStorage.getItem('ntun_v4_admins')) || [MASTER_ADMIN];
 let currentUser = null;
 let selectedImgBase64 = null;
-let currentFilter = 'all'; // 'all' หรือ 'mine'
+let currentCatFilter = 'ทั้งหมด';
 
-// 🧹 ฟังก์ชันลบโพสต์อัตโนมัติ (ลบโพสต์ที่ status = completed เกิน 2 วัน)
-function autoCleanUp() {
-    const TWO_DAYS = 2 * 24 * 60 * 60 * 1000; // 2 วัน ในหน่วยมิลลิวินาที
-    const now = Date.now();
-    const originalCount = posts.length;
+// ตรวจสอบ Session 24 ชม. ทันทีที่โหลดหน้าเว็บ
+window.onload = () => {
+    const storedUser = localStorage.getItem('ntun_user_session');
+    const storedTime = localStorage.getItem('ntun_user_time');
     
-    posts = posts.filter(p => {
-        if (p.status === 'completed' && p.completedAt) {
-            return (now - p.completedAt) < TWO_DAYS; // เก็บไว้ถ้ายังไม่ถึง 2 วัน
+    if (storedUser && storedTime) {
+        if (Date.now() - parseInt(storedTime) < SESSION_LIMIT) {
+            currentUser = JSON.parse(storedUser);
+            renderAuthUI();
+            unlock();
+        } else {
+            logout(); // หมดเวลา 24 ชม.
         }
-        return true;
-    });
+    }
+};
 
-    if (posts.length !== originalCount) saveData();
-}
-
-// ⏳ ฟังก์ชันคำนวณเวลา (เช่น 2 ชั่วโมงที่แล้ว, 3 วันที่แล้ว)
-function timeAgo(timestamp) {
-    if (!timestamp) return "";
-    const diff = Date.now() - timestamp;
-    const mins = Math.floor(diff / 60000);
-    const hrs = Math.floor(mins / 60);
-    const days = Math.floor(hrs / 24);
-
-    if (days > 0) return `ลงเมื่อ ${days} วันที่แล้ว`;
-    if (hrs > 0) return `ลงเมื่อ ${hrs} ชั่วโมงที่แล้ว`;
-    if (mins > 0) return `ลงเมื่อ ${mins} นาทีที่แล้ว`;
-    return "เพิ่งลงเมื่อกี้";
-}
-
-// --- 1. Google Login ---
+// --- 1. Google Login & Session ---
 function handleSignIn(response) {
     try {
         const base64Url = response.credential.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-        const payload = JSON.parse(new TextDecoder().decode(bytes));
-
+        const payload = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(base64Url.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))));
+        
         const email = payload.email;
         const domain = payload.hd || email.split('@')[1];
 
         if (domain === SCHOOL_DOMAIN || email === MASTER_ADMIN) {
             currentUser = payload;
+            // บันทึกลง LocalStorage ให้อยู่ได้ 24 ชม.
+            localStorage.setItem('ntun_user_session', JSON.stringify(payload));
+            localStorage.setItem('ntun_user_time', Date.now().toString());
             
-            document.getElementById('auth-section').innerHTML = `
-                <div class="flex items-center gap-3 bg-white/60 backdrop-blur-md p-1.5 pr-4 rounded-full border border-gray-200 shadow-sm">
-                    <img src="${payload.picture}" class="w-9 h-9 rounded-full" referrerpolicy="no-referrer">
-                    <div class="hidden sm:block">
-                        <p class="text-[11px] font-bold text-gray-800 leading-none">${payload.name}</p>
-                    </div>
-                    <button onclick="location.reload()" class="ml-1 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-800 hover:text-white transition text-[9px]">✕</button>
-                </div>
-            `;
+            renderAuthUI();
             unlock();
         } else {
             alert(`❌ ระบบนี้อนุญาตเฉพาะนักเรียน @${SCHOOL_DOMAIN} เท่านั้น`);
@@ -74,16 +54,49 @@ function handleSignIn(response) {
     } catch (err) { alert("Login Error"); }
 }
 
+function renderAuthUI() {
+    document.getElementById('auth-section').innerHTML = `
+        <div class="flex items-center gap-3 bg-white/60 p-1.5 pr-4 rounded-full border border-gray-200">
+            <img src="${currentUser.picture}" class="w-9 h-9 rounded-full" referrerpolicy="no-referrer">
+            <div class="hidden sm:block">
+                <p class="text-[11px] font-bold text-gray-800 leading-none">${currentUser.name}</p>
+            </div>
+            <button onclick="logout()" class="ml-1 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 hover:bg-rose-500 hover:text-white transition text-[9px]" title="ออกจากระบบ">✕</button>
+        </div>
+    `;
+}
+
+function logout() {
+    localStorage.removeItem('ntun_user_session');
+    localStorage.removeItem('ntun_user_time');
+    location.reload();
+}
+
 function unlock() {
     document.getElementById('login-placeholder').style.display = 'none';
     document.getElementById('app-content').style.display = 'block';
-    
-    if (admins.includes(currentUser.email)) {
-        document.getElementById('admin-panel').style.display = 'block';
-    }
-    
-    autoCleanUp(); // รันเช็กลบโพสต์ที่หมดอายุ
+    autoCleanUp(); 
     renderFeed();
+}
+
+// 🧹 ลบโพสต์อัตโนมัติ (ลบโพสต์ที่ status = completed เกิน 2 วัน)
+function autoCleanUp() {
+    const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const originalCount = posts.length;
+    posts = posts.filter(p => !(p.status === 'completed' && p.completedAt && (now - p.completedAt) > TWO_DAYS));
+    if (posts.length !== originalCount) saveData();
+}
+
+function timeAgo(timestamp) {
+    if (!timestamp) return "";
+    const mins = Math.floor((Date.now() - timestamp) / 60000);
+    const hrs = Math.floor(mins / 60);
+    const days = Math.floor(hrs / 24);
+    if (days > 0) return `ลงเมื่อ ${days} วันที่แล้ว`;
+    if (hrs > 0) return `ลงเมื่อ ${hrs} ชั่วโมงที่แล้ว`;
+    if (mins > 0) return `ลงเมื่อ ${mins} นาทีที่แล้ว`;
+    return "เพิ่งลงเมื่อกี้";
 }
 
 // --- 2. Image Engine ---
@@ -97,13 +110,10 @@ function previewImage(input) {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const maxW = 600; 
-                const scale = maxW / img.width;
                 canvas.width = maxW;
-                canvas.height = img.height * scale;
+                canvas.height = img.height * (maxW / img.width);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
                 selectedImgBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                
                 document.getElementById('image-preview-el').src = selectedImgBase64;
                 document.getElementById('image-preview-el').classList.remove('hidden');
                 document.getElementById('preview-placeholder').classList.add('hidden');
@@ -113,7 +123,6 @@ function previewImage(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-
 function removeSelectedImg() {
     selectedImgBase64 = null;
     document.getElementById('itemImage').value = '';
@@ -122,15 +131,18 @@ function removeSelectedImg() {
     document.getElementById('remove-img').classList.add('hidden');
 }
 
-// --- 3. UI Tab Logic ---
-function setFilter(type) {
-    currentFilter = type;
-    document.getElementById('tab-all').classList.toggle('active', type === 'all');
-    document.getElementById('tab-mine').classList.toggle('active', type === 'mine');
+// --- 3. Filter หมวดหมู่ ---
+function setFilter(cat) {
+    currentCatFilter = cat;
+    const btns = document.getElementById('category-filters').children;
+    for(let b of btns) {
+        b.className = b.innerText.includes(cat) || (cat === 'ทั้งหมด' && b.innerText === 'รวมทั้งหมด') 
+            ? 'cat-btn active' : 'cat-btn';
+    }
     renderFeed();
 }
 
-// --- 4. Post Logic & Rendering ---
+// --- 4. Post Logic ---
 function handlePost(e) {
     e.preventDefault();
     const name = document.getElementById('itemName').value;
@@ -138,157 +150,121 @@ function handlePost(e) {
     const cat = document.getElementById('itemCat').value;
     const contact = document.getElementById('itemContact').value;
 
-    const fullText = (name + detail + contact).toLowerCase();
-    if (FORBIDDEN.some(w => fullText.includes(w))) {
+    if (FORBIDDEN.some(w => (name + detail).toLowerCase().includes(w))) {
         return alert("⚠️ ตรวจพบคำไม่เหมาะสม หรือสินค้าผิดกฎหมาย");
     }
 
-    const newPost = {
-        id: Date.now(),
-        timestamp: Date.now(), // เก็บเวลาตอนลงโพสต์เพื่อคำนวณ timeAgo
-        user: currentUser.name,
-        email: currentUser.email,
-        avatar: currentUser.picture,
-        name, detail, cat, contact,
-        image: selectedImgBase64,
-        status: 'available',
-        reservedBy: null,
-        completedAt: null // เก็บเวลาตอนกดยืนยันเพื่อลบออโต้
-    };
-
-    posts.unshift(newPost);
-    saveData();
-    renderFeed();
-    e.target.reset();
-    removeSelectedImg();
-    alert("✅ ลงประกาศสำเร็จ!");
+    posts.unshift({
+        id: Date.now(), timestamp: Date.now(),
+        user: currentUser.name, email: currentUser.email, avatar: currentUser.picture,
+        name, detail, cat, contact, image: selectedImgBase64,
+        status: 'available', reservedBy: null, completedAt: null
+    });
+    saveData(); renderFeed(); e.target.reset(); removeSelectedImg();
 }
 
 function renderFeed() {
     const feed = document.getElementById('feed');
-    const isAdmin = admins.includes(currentUser.email);
-    
-    // กรองข้อมูลตาม Tab ที่เลือก
     let displayPosts = posts;
-    if (currentFilter === 'mine') {
-        displayPosts = posts.filter(p => p.email === currentUser.email);
+    
+    // กรองหมวดหมู่ (ใช้ Emoji เป็นตัวกรอง)
+    if (currentCatFilter !== 'ทั้งหมด') {
+        displayPosts = displayPosts.filter(p => p.cat.startsWith(currentCatFilter));
     }
 
     if (displayPosts.length === 0) {
-        feed.innerHTML = `
-            <div class="col-span-full py-24 flex flex-col items-center justify-center text-gray-400 bg-white/40 backdrop-blur-md rounded-[32px] border-2 border-dashed border-gray-200">
-                <span class="text-4xl mb-3 opacity-50">🍃</span>
-                <p class="font-medium">ยังไม่มีรายการสิ่งของในหมวดหมู่นี้</p>
-            </div>`;
+        feed.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 bg-white/40 rounded-[32px] border-2 border-dashed border-gray-200">ไม่มีสิ่งของในหมวดหมู่นี้</div>`;
         return;
     }
 
     feed.innerHTML = displayPosts.map(post => {
         const isOwner = post.email === currentUser.email;
-        let statusBadge = `<span class="bg-indigo-50 text-indigo-600 border border-indigo-100 px-3 py-1 rounded-full text-[10px] font-bold">✨ พร้อมส่งต่อ</span>`;
-        
-        // ปุ่มแยกหน้าที่ชัดเจน คนฝาก / คนรับ
-        let actionBtn = isOwner 
-            ? `<span class="text-xs font-bold text-gray-400 bg-gray-100 px-4 py-2 rounded-xl">ของของคุณ</span>`
-            : `<button onclick="reserve(${post.id})" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold btn-ios shadow-md shadow-indigo-200">รับของชิ้นนี้</button>`;
+        let badge = `<span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-bold">ว่าง</span>`;
+        let btn = isOwner 
+            ? `<span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg">ของที่คุณลง</span>`
+            : `<button onclick="reserve(${post.id})" class="bg-black text-white px-5 py-2 rounded-xl text-xs font-bold btn-ios">รับของ</button>`;
         
         let cardClass = "ios-card overflow-hidden flex flex-col";
 
         if (post.status === 'reserved') {
-            statusBadge = `<span class="bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1 rounded-full text-[10px] font-bold">จองแล้วโดย ${post.reservedBy}</span>`;
-            
-            // คนฝากของ จะเห็นปุ่มยืนยัน
-            actionBtn = isOwner ? 
-                `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-ios shadow-md shadow-emerald-200 animate-pulse">ยืนยันว่าส่งให้เพื่อนแล้ว</button>` : 
-                `<span class="text-xs text-amber-500 font-bold bg-amber-50 px-4 py-2 rounded-xl">มีผู้รับไปแล้ว</span>`;
-            cardClass += " opacity-95";
+            badge = `<span class="bg-amber-50 text-amber-600 px-3 py-1 rounded-full text-[10px] font-bold">จองแล้วโดย ${post.reservedBy}</span>`;
+            btn = isOwner 
+                ? `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold btn-ios">ยืนยันว่าส่งแล้ว</button>` 
+                : `<span class="text-[10px] text-amber-500 font-bold bg-amber-50 px-3 py-1.5 rounded-lg">ไม่ว่าง</span>`;
+            cardClass += " opacity-95 border-amber-100";
         } else if (post.status === 'completed') {
-            statusBadge = `<span class="bg-gray-100 text-gray-500 border border-gray-200 px-3 py-1 rounded-full text-[10px] font-bold">ส่งมอบสำเร็จแล้ว</span>`;
-            actionBtn = `<span class="text-xs text-emerald-500 font-bold flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> ปิดงาน</span>`;
+            badge = `<span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-[10px] font-bold">สำเร็จ</span>`;
+            btn = `<span class="text-[10px] text-emerald-500 font-bold">✓ จบงาน</span>`;
             cardClass += " grayscale opacity-50 scale-[0.98]";
         }
 
-        // คำนวณเวลาที่ลง
-        const timeString = timeAgo(post.timestamp);
-
         return `
         <div class="${cardClass}">
-            ${post.image ? `<div class="relative w-full h-48 bg-gray-100"><img src="${post.image}" class="w-full h-full object-cover"></div>` : '<div class="w-full h-10 bg-gray-50"></div>'}
-            
-            <div class="p-6 flex flex-col flex-1 relative">
-                <div class="flex justify-between items-start mb-3">
-                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${post.cat}</span>
-                    ${statusBadge}
-                </div>
-                
-                <h4 class="text-xl font-bold mb-1 text-gray-900 leading-tight">${post.name}</h4>
-                <p class="text-[10px] font-medium text-indigo-400 mb-3">${timeString}</p>
-                
-                <p class="text-xs text-gray-600 mb-4 line-clamp-2 leading-relaxed flex-1">${post.detail}</p>
-                
-                <div class="bg-gray-50/80 rounded-xl p-3 mb-5 border border-gray-100">
-                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wide mb-1 flex items-center gap-1">💬 ติดต่อผู้ฝาก</p>
-                    <p class="text-sm text-gray-800 font-medium">${post.contact || "ไม่ได้ระบุ"}</p>
-                </div>
-                
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div class="flex items-center gap-2">
-                        <img src="${post.avatar}" class="w-8 h-8 rounded-full shadow-sm border border-white" referrerpolicy="no-referrer">
-                        <div class="leading-none">
-                            <span class="block text-[11px] font-bold text-gray-900">${post.user}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        ${actionBtn}
-                        ${isAdmin || isOwner ? `<button onclick="del(${post.id})" class="text-gray-400 w-8 h-8 flex items-center justify-center rounded-full hover:bg-rose-50 hover:text-rose-500 transition-all text-sm">🗑️</button>` : ''}
-                    </div>
+            ${post.image ? `<div class="w-full h-40 bg-gray-100"><img src="${post.image}" class="w-full h-full object-cover"></div>` : ''}
+            <div class="p-5 flex flex-col flex-1">
+                <div class="flex justify-between items-start mb-2"><span class="text-[9px] font-bold text-gray-400">${post.cat}</span>${badge}</div>
+                <h4 class="text-lg font-bold mb-1 leading-tight">${post.name}</h4>
+                <p class="text-[9px] font-medium text-indigo-400 mb-2">${timeAgo(post.timestamp)}</p>
+                <p class="text-xs text-gray-500 mb-3 line-clamp-2">${post.detail}</p>
+                <div class="bg-gray-50 rounded-lg p-2 mb-3 border border-gray-100 text-[10px]"><span class="font-bold text-gray-400">📞 ติดต่อ:</span> <span class="font-medium">${post.contact}</span></div>
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto">
+                    <div class="flex items-center gap-2"><img src="${post.avatar}" class="w-6 h-6 rounded-full"><span class="text-[10px] font-bold">${post.user}</span></div>
+                    <div class="flex gap-2">${btn} ${isOwner ? `<button onclick="del(${post.id})" class="text-rose-400 text-xs hover:bg-rose-50 w-6 h-6 rounded-full flex items-center justify-center">🗑️</button>` : ''}</div>
                 </div>
             </div>
-        </div>
-        `;
+        </div>`;
     }).join('');
 }
 
 // --- 5. System Logic ---
 function reserve(id) {
     const p = posts.find(x => x.id === id);
-    if(confirm(`ยืนยันการรับ "${p.name}"?\n\n📌 ติดต่อเจ้าของ: ${p.contact}\nกรุณาติดต่อไปรับของให้ไวที่สุดนะ!`)) {
-        p.status = 'reserved';
-        p.reservedBy = currentUser.name;
+    if(confirm(`ยืนยันการรับ "${p.name}"?\n📌 ติดต่อ: ${p.contact}`)) {
+        p.status = 'reserved'; p.reservedBy = currentUser.name;
         saveData(); renderFeed();
     }
 }
-
 function complete(id) {
-    if(confirm("ผู้รับได้รับของเรียบร้อยแล้วใช่ไหม? (โพสต์นี้จะหายไปเองใน 2 วัน)")) {
+    if(confirm("ส่งมอบให้เพื่อนเรียบร้อยใช่ไหม?")) {
         const p = posts.find(x => x.id === id);
-        p.status = 'completed';
-        p.completedAt = Date.now(); // บันทึกเวลาที่ส่งสำเร็จ เพื่อลบออโต้
+        p.status = 'completed'; p.completedAt = Date.now();
         saveData(); renderFeed();
     }
 }
-
 function del(id) {
-    if(confirm("ต้องการลบโพสต์นี้ถาวรหรือไม่?")) {
-        posts = posts.filter(x => x.id !== id);
-        saveData(); renderFeed();
-    }
+    if(confirm("ลบโพสต์นี้?")) { posts = posts.filter(x => x.id !== id); saveData(); renderFeed(); }
 }
-
-function clearCompleted() {
-    posts = posts.filter(x => x.status !== 'completed');
-    saveData(); renderFeed();
-}
-
-// --- Admin ---
-function addAdmin() {
-    const email = document.getElementById('new-admin-email').value.trim().toLowerCase();
-    if(email && !admins.includes(email)) {
-        admins.push(email);
-        localStorage.setItem('ntun_v4_admins', JSON.stringify(admins));
-        document.getElementById('new-admin-email').value = "";
-        alert("เพิ่มแอดมินใหม่สำเร็จ");
-    }
-}
-
 function saveData() { localStorage.setItem('ntun_v4_posts', JSON.stringify(posts)); }
+
+// --- 6. ระบบประวัติ (History Modal) ---
+function toggleHistory() {
+    const modal = document.getElementById('history-modal');
+    modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    if(modal.style.display === 'flex') showHistoryTab('given');
+}
+
+function showHistoryTab(tab) {
+    document.getElementById('htab-given').className = tab === 'given' ? 'font-bold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-2' : 'font-bold text-gray-400 pb-2 px-2';
+    document.getElementById('htab-received').className = tab === 'received' ? 'font-bold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-2' : 'font-bold text-gray-400 pb-2 px-2';
+    
+    const list = tab === 'given' 
+        ? posts.filter(p => p.email === currentUser.email) // ของที่ฉันฝาก
+        : posts.filter(p => p.reservedBy === currentUser.name); // ของที่ฉันกดรับ
+        
+    const content = document.getElementById('history-content');
+    if(list.length === 0) {
+        content.innerHTML = `<div class="py-10 text-center text-gray-400 text-sm">ไม่มีประวัติในหมวดหมู่นี้</div>`;
+        return;
+    }
+
+    content.innerHTML = list.map(p => `
+        <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+            ${p.image ? `<img src="${p.image}" class="w-16 h-16 rounded-xl object-cover">` : `<div class="w-16 h-16 rounded-xl bg-gray-200"></div>`}
+            <div class="flex-1">
+                <h4 class="font-bold text-sm leading-tight">${p.name}</h4>
+                <p class="text-[10px] text-gray-400 mt-1">สถานะ: ${p.status === 'completed' ? '✅ จบงานแล้ว' : (p.status === 'reserved' ? '⏳ กำลังจอง' : '✨ รอคนรับ')}</p>
+            </div>
+            ${p.status === 'reserved' && tab === 'given' ? `<button onclick="complete(${p.id}); toggleHistory();" class="text-xs bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-bold">ยืนยันส่ง</button>` : ''}
+        </div>
+    `).join('');
+}
