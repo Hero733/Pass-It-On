@@ -56,25 +56,24 @@
     </div>
 
     <nav class="sticky top-0 z-[1000] glass-nav px-4 md:px-8 py-3 flex justify-between items-center transition-all duration-300">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 shrink-0">
             <img src="photo/logo.png" alt="Logo" class="w-10 h-10 object-contain drop-shadow-sm" onerror="this.src='https://via.placeholder.com/40?text=P';">
             <span class="text-xl font-bold tracking-tight hidden md:block text-[#1d1d1f]">Pass It On</span>
             <span id="admin-badge" class="hidden bg-rose-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide">Admin</span>
         </div>
 
-        <div id="nav-actions" class="hidden flex items-center gap-1 bg-white/50 p-1 rounded-full border border-gray-200 shadow-sm backdrop-blur-md">
-            <button id="nav-btn-landing" onclick="switchPage('landing')" class="px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 btn-press bg-[#1d1d1f] text-white shadow-md">หน้าแรก</button>
-            <button id="nav-btn-app" onclick="switchPage('app')" class="px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 btn-press text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/5">กระดาน</button>
-            <button onclick="openModal('modal-guide')" class="px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 btn-press text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/5">คู่มือ</button>
-            <button onclick="openModal('modal-history')" class="px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 btn-press text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/5">ประวัติ</button>
+        <div id="nav-actions" class="hidden items-center gap-1 md:gap-2 overflow-x-auto hide-scroll flex-nowrap px-2">
+            <button onclick="switchPage('landing')" class="whitespace-nowrap px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium text-[#1d1d1f] hover:bg-black/5 btn-press">หน้าแรก</button>
+            <button onclick="switchPage('app')" class="whitespace-nowrap px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium text-white bg-[#1d1d1f] hover:bg-black/80 btn-press">กระดาน</button>
+            <button onclick="openModal('modal-guide')" class="whitespace-nowrap px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium text-[#1d1d1f] hover:bg-black/5 btn-press">คู่มือ</button>
+            <button onclick="openModal('modal-history')" class="whitespace-nowrap px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium text-[#1d1d1f] hover:bg-black/5 btn-press">ประวัติ</button>
         </div>
 
-        <div id="auth-section">
+        <div id="auth-section" class="shrink-0">
             <div id="g_id_onload" data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" data-callback="handleSignIn"></div>
             <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline"></div>
         </div>
     </nav>
-
     <main class="max-w-[1200px] mx-auto px-4 md:px-8 min-h-screen relative overflow-hidden">
         
         <section id="page-landing" class="py-12 md:py-24 flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 page-enter absolute w-full inset-x-0">
