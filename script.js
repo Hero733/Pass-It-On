@@ -19,17 +19,23 @@ let currentSlideIdx = 0;
 // ==========================================
 function fixMojibake(str) {
     if (!str) return str;
+    // ถ้าเจอตัวอักษรขยะเช่น à¸ ให้แปลงกลับเป็นภาษาไทย
     if (str.includes('à¸') || str.includes('à¹')) {
-        try { return decodeURIComponent(escape(str)); } 
-        catch (e) { return str; }
+        try {
+            return decodeURIComponent(escape(str));
+        } catch (e) {
+            return str;
+        }
     }
     return str;
 }
 
+// อัปเกรดตัวถอดรหัส Google Token ให้แม่นยำ 100%
 function parseJwt(token) {
     try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        // ใช้ TextDecoder เพื่อป้องกันปัญหา Encoding ภาษาไทย
         const binaryString = window.atob(base64);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
@@ -50,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const session = localStorage.getItem('ntun_session');
     if (session) {
         currentUser = JSON.parse(session);
+        // แก้ชื่อที่อาจจะพังไปแล้วใน LocalStorage
         currentUser.name = fixMojibake(currentUser.name);
         renderAuthUI();
         switchPage('app');
@@ -57,25 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
         switchPage('landing');
     }
 });
-
-// 🛠️ ฟังก์ชันสลับคลาสของปุ่ม Nav ให้ก้อนสีดำขยับ
-function updateNavButtons(targetPage) {
-    const btnLanding = document.getElementById('nav-btn-landing');
-    const btnApp = document.getElementById('nav-btn-app');
-    
-    if (!btnLanding || !btnApp) return;
-
-    const activeClass = "px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 btn-press bg-[#1d1d1f] text-white shadow-md";
-    const inactiveClass = "px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 btn-press text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/5";
-
-    if (targetPage === 'landing') {
-        btnLanding.className = activeClass;
-        btnApp.className = inactiveClass;
-    } else if (targetPage === 'app') {
-        btnLanding.className = inactiveClass;
-        btnApp.className = activeClass;
-    }
-}
 
 function switchPage(targetPage) {
     if (currentPage === targetPage && currentUser) return;
@@ -85,9 +73,6 @@ function switchPage(targetPage) {
     
     if (currentPage === 'landing') landing.classList.add('page-leave');
     if (currentPage === 'app') app.classList.add('page-leave');
-
-    // 🛠️ อัปเดตก้อนสีดำทันทีที่กดสลับหน้า
-    updateNavButtons(targetPage);
 
     setTimeout(() => {
         landing.classList.remove('page-leave', 'page-enter');
@@ -116,7 +101,7 @@ function handleSignIn(response) {
 
     if (domain === ALLOWED_DOMAIN || email === ADMIN_EMAIL) {
         currentUser = { 
-            name: fixMojibake(payload.name), 
+            name: fixMojibake(payload.name), // กรองอีกรอบให้ชัวร์
             email: email, 
             picture: payload.picture,
             isAdmin: (email === ADMIN_EMAIL) 
@@ -270,6 +255,7 @@ function renderFeed() {
         const isReservedByMe = post.reservedByEmail === currentUser.email;
         const showContact = post.status === 'available' || isOwner || isReservedByMe || isAdmin;
         
+        // แก้ภาษาต่างดาวตอนแสดงผล
         const displayOwnerName = fixMojibake(post.ownerName);
 
         let badge, actionButton, cardClass = "";
@@ -350,35 +336,29 @@ function deletePost(id) {
 }
 function saveData() { localStorage.setItem('ntun_system_db', JSON.stringify(posts)); }
 
+// เติมส่วนที่ขาดหายไป
 function switchHistoryTab(tab) {
     const list = document.getElementById('history-list');
+    
     document.getElementById('tab-give').className = (tab === 'give') ? "pb-2 text-[#1d1d1f] font-medium border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors" : "pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors";
     document.getElementById('tab-take').className = (tab === 'take') ? "pb-2 text-[#1d1d1f] font-medium border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors" : "pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors";
-    
-    let display = [];
-    if (tab === 'give') {
-        display = posts.filter(p => p.ownerEmail === currentUser.email);
-    } else {
-        display = posts.filter(p => p.reservedByEmail === currentUser.email);
-    }
 
-    if(display.length === 0) {
-        list.innerHTML = `<div class="text-center py-8 text-[#86868b] text-sm font-medium">ยังไม่มีประวัติในส่วนนี้</div>`;
+    const displayList = posts.filter(p => tab === 'give' ? p.ownerEmail === currentUser.email : p.reservedByEmail === currentUser.email);
+
+    if (displayList.length === 0) {
+        list.innerHTML = `<div class="py-10 text-center text-[#86868b] text-sm">ยังไม่มีประวัติในส่วนนี้ครับ</div>`;
         return;
     }
 
-    list.innerHTML = display.map(p => {
-        let statusColor = p.status === 'completed' ? 'text-[#86868b]' : (p.status === 'reserved' ? 'text-amber-600' : 'text-blue-600');
-        let statusText = p.status === 'completed' ? 'จบงาน' : (p.status === 'reserved' ? 'รอส่งมอบ' : 'ว่าง');
-        
-        return `
-            <div class="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-4">
-                ${p.image ? `<img src="${p.image}" class="w-16 h-16 object-cover rounded-xl shrink-0">` : `<div class="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center text-[10px] text-[#86868b]">NO IMG</div>`}
-                <div class="flex-1 min-w-0">
-                    <h4 class="font-bold text-sm text-[#1d1d1f] truncate">${p.name}</h4>
-                    <p class="text-xs ${statusColor} font-bold mt-1">สถานะ: ${statusText}</p>
-                </div>
+    list.innerHTML = displayList.map(p => `
+        <div class="flex gap-4 p-3 border border-gray-100 rounded-2xl bg-gray-50/50 relative">
+            <img src="${p.image || 'https://via.placeholder.com/80?text=No+Img'}" class="w-16 h-16 rounded-xl object-cover shrink-0">
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+                <h4 class="text-sm font-bold text-[#1d1d1f] truncate">${p.name}</h4>
+                <p class="text-[11px] text-[#86868b] mt-1 font-medium">
+                    สถานะ: <span class="${p.status === 'completed' ? 'text-gray-500' : 'text-amber-600'}">${p.status === 'completed' ? 'จบงานแล้ว' : (p.status === 'reserved' ? 'รอส่งมอบ' : 'ว่าง')}</span>
+                </p>
             </div>
-        `;
-    }).join('');
+        </div>
+    `).join('');
 }
