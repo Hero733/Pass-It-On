@@ -1,11 +1,10 @@
 // --- Configuration ---
 const MASTER_ADMIN = "aceaa372@gmail.com";
 const SCHOOL_DOMAIN = "ntun.ac.th";
-const SESSION_LIMIT = 24 * 60 * 60 * 1000; // 24 ชม.
+const SESSION_LIMIT = 24 * 60 * 60 * 1000;
 
 const FORBIDDEN = ["ยาบ้า", "กัญชา", "เหล้า", "เบียร์", "บุหรี่", "พอต", "vape", "กระท่อม", "เพศ", "sex", "ปืน", "มีด", "อาวุธ", "หวย", "การพนัน", "18+"];
 
-// 🧠 ระบบ AI Validator (ดิกชันนารีเช็กหมวดหมู่อัจฉริยะ)
 const CATEGORY_KEYWORDS = {
     '📚': ['หนังสือ', 'ชีท', 'สรุป', 'สอบ', 'เรียน', 'สมุด', 'คณิต', 'วิทย์', 'ภาษา', 'อ่าน', 'ม.4', 'ม.5', 'ม.6'],
     '👕': ['เสื้อ', 'กางเกง', 'กระโปรง', 'พละ', 'ไซส์', 'size', 'ชุด', 'รองเท้า', 'เข็มขัด', 'สภาพ'],
@@ -15,13 +14,11 @@ const CATEGORY_KEYWORDS = {
     '🎸': ['กีตาร์', 'เกม', 'ของเล่น', 'ฟิกเกอร์', 'ตุ๊กตา', 'ดนตรี', 'การ์ตูน']
 };
 
-// --- Data State ---
 let posts = JSON.parse(localStorage.getItem('ntun_v4_posts')) || [];
 let currentUser = null;
 let selectedImgBase64 = null;
 let currentCatFilter = 'ทั้งหมด';
 
-// ตรวจสอบ Session ทันทีที่เข้าเว็บ
 window.onload = () => {
     const storedUser = localStorage.getItem('ntun_user_session');
     const storedTime = localStorage.getItem('ntun_user_time');
@@ -29,7 +26,7 @@ window.onload = () => {
     if (storedUser && storedTime && (Date.now() - parseInt(storedTime) < SESSION_LIMIT)) {
         currentUser = JSON.parse(storedUser);
         renderAuthUI(); 
-        unlock();
+        unlock(false); // ใส่ false เพื่อไม่ให้จอกระตุกเลื่อนเองถ้ารีเฟรช
     } else {
         localStorage.removeItem('ntun_user_session');
     }
@@ -45,7 +42,7 @@ function handleSignIn(response) {
             localStorage.setItem('ntun_user_session', JSON.stringify(payload));
             localStorage.setItem('ntun_user_time', Date.now().toString());
             renderAuthUI(); 
-            unlock();
+            unlock(true); // เลื่อนจอสมูทลงมาเมื่อเพิ่งกดล็อกอินเสร็จ
         } else { 
             alert(`❌ ระบบนี้อนุญาตเฉพาะนักเรียน @${SCHOOL_DOMAIN} เท่านั้น`); 
         }
@@ -53,7 +50,6 @@ function handleSignIn(response) {
 }
 
 function renderAuthUI() {
-    // อัปเดตฝั่งโปรไฟล์ขวาบน
     document.getElementById('auth-section').innerHTML = `
         <div class="flex items-center gap-3 bg-white/60 p-1.5 pr-4 rounded-full border border-gray-200">
             <img src="${currentUser.picture}" class="w-9 h-9 rounded-full" referrerpolicy="no-referrer">
@@ -61,12 +57,13 @@ function renderAuthUI() {
             <button onclick="logout()" class="ml-1 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 hover:bg-rose-500 hover:text-white transition text-[9px]" title="ออกจากระบบ">✕</button>
         </div>`;
     
-    // อัปเดตเมนูตรงกลาง (ซ่อนหน้าแรก เอาเมนูแอปใส่แทน)
+    // อัปเดตเมนูเมื่อล็อกอิน: มีหน้าหลัก กลับมาให้แล้ว!
     document.getElementById('nav-links').innerHTML = `
         <div class="flex items-center bg-white/50 p-1.5 rounded-full border border-gray-200/80 backdrop-blur-xl shadow-sm shrink-0 gap-1">
+            <a href="#top-page" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">🏠 หน้าหลัก</a>
             <a href="#app-content" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">🎁 ฝาก & รับของ</a>
             <button onclick="toggleHistory()" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">📁 ประวัติ</button>
-            <a href="guide.html" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">📖 คู่มือ</a>
+            <button onclick="toggleGuide()" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">📖 คู่มือ</button>
         </div>
     `;
 }
@@ -74,17 +71,20 @@ function renderAuthUI() {
 function logout() {
     localStorage.removeItem('ntun_user_session'); 
     localStorage.removeItem('ntun_user_time'); 
-    location.reload(); // รีโหลดหน้าเพื่อกลับไปหน้าฮีโร่
+    location.reload(); 
 }
 
-function unlock() {
-    document.getElementById('login-placeholder').style.display = 'none';
+function unlock(shouldScroll) {
+    // เราจะไม่ซ่อนหน้าแรก (#login-placeholder) แล้ว เพื่อให้เป็น "หน้าหลัก" จริงๆ
     document.getElementById('app-content').style.display = 'block';
     autoCleanUp(); 
     renderFeed();
+    
+    if(shouldScroll) {
+        document.getElementById('app-content').scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
-// ลบอัตโนมัติเมื่อครบ 2 วัน
 function autoCleanUp() {
     const originalCount = posts.length;
     posts = posts.filter(p => !(p.status === 'completed' && p.completedAt && (Date.now() - p.completedAt) > 172800000));
@@ -98,7 +98,6 @@ function timeAgo(timestamp) {
     return mins > 0 ? `ลงเมื่อ ${mins} นาทีที่แล้ว` : "เพิ่งลงเมื่อกี้";
 }
 
-// รูปภาพ
 function previewImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -125,19 +124,16 @@ function removeSelectedImg() {
     document.getElementById('remove-img').classList.add('hidden');
 }
 
-// 🎯 ระบบกรองหมวดหมู่แบบ Exact Match
 function setFilter(cat) {
     currentCatFilter = cat;
     const btns = document.getElementById('category-filters').children;
     for(let b of btns) {
-        // เช็กคำว่าตรงกันเป๊ะไหม
         b.className = (b.innerText === cat || (cat === 'ทั้งหมด' && b.innerText === 'รวมทั้งหมด'))
             ? 'cat-btn active' : 'cat-btn';
     }
     renderFeed();
 }
 
-// 🚀 ระบบโพสต์ และ AI Validator
 function handlePost(e) {
     e.preventDefault();
     const btn = document.getElementById('submit-btn');
@@ -147,17 +143,12 @@ function handlePost(e) {
     const contact = document.getElementById('itemContact').value;
     const fullText = (name + " " + detail).toLowerCase();
 
-    // 1. เช็กคำผิดกฎหมาย
     if (FORBIDDEN.some(w => fullText.includes(w))) {
         return alert("⚠️ ตรวจพบคำไม่เหมาะสม หรือสินค้าผิดกฎหมาย กรุณาแก้ไขข้อความครับ");
     }
-
-    // 2. เช็กรูปภาพ
     if (!selectedImgBase64) {
         if (!confirm("🔍 ระบบแนะนำ: คุณยังไม่ได้ใส่รูปภาพ!\nยืนยันที่จะโพสต์โดยไม่มีรูปหรือไม่?")) return;
     }
-
-    // 3. AI Text Validator (เช็กอิโมจิตัวแรกของหมวดหมู่)
     const emojiPrefix = cat.substring(0, 2).trim(); 
     if (CATEGORY_KEYWORDS[emojiPrefix]) {
         const hasKeyword = CATEGORY_KEYWORDS[emojiPrefix].some(kw => fullText.includes(kw));
@@ -166,7 +157,6 @@ function handlePost(e) {
         }
     }
 
-    // ทำ Effect
     const originalText = btn.innerHTML;
     btn.innerHTML = `<span class="animate-spin text-xl">⏳</span> กำลังส่ง...`;
     btn.disabled = true;
@@ -187,7 +177,6 @@ function renderFeed() {
     const feed = document.getElementById('feed');
     let displayPosts = posts;
     
-    // กรองแบบ Exact Match ให้ตรงกับหมวดหมู่
     if (currentCatFilter !== 'ทั้งหมด') {
         displayPosts = displayPosts.filter(p => p.cat === currentCatFilter);
     }
@@ -218,7 +207,6 @@ function renderFeed() {
             cardClass += " grayscale opacity-60 scale-[0.98]";
         }
 
-        // ดีไซน์การ์ดให้แน่นและเต็มตา
         return `
         <div class="${cardClass}">
             ${post.image ? `<div class="w-full h-48 bg-gray-100 relative shrink-0"><img src="${post.image}" class="w-full h-full object-cover"></div>` : ''}
@@ -240,7 +228,6 @@ function renderFeed() {
     }).join('');
 }
 
-// --- System ---
 function reserve(id) {
     if(!currentUser) return alert("กรุณาล็อกอินก่อนครับ!");
     const p = posts.find(x => x.id === id);
@@ -257,12 +244,17 @@ function complete(id) {
 function del(id) { if(confirm("ต้องการลบโพสต์นี้ถาวรใช่ไหม?")) { posts = posts.filter(x => x.id !== id); saveData(); renderFeed(); } }
 function saveData() { localStorage.setItem('ntun_v4_posts', JSON.stringify(posts)); }
 
-// --- History Modal ---
+// --- Modal Functions ---
 function toggleHistory() {
     if (!currentUser) return alert("⚠️ กรุณาล็อกอินด้วยอีเมลโรงเรียนก่อนเข้าดูประวัติครับ!");
     const modal = document.getElementById('history-modal');
     modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
     if(modal.style.display === 'flex') showHistoryTab('given');
+}
+
+function toggleGuide() {
+    const modal = document.getElementById('guide-modal');
+    modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
 }
 
 function showHistoryTab(tab) {
