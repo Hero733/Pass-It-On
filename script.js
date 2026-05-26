@@ -19,6 +19,15 @@ let currentUser = null;
 let selectedImgBase64 = null;
 let currentCatFilter = 'ทั้งหมด';
 
+// แอนิเมชันเอา Loader ออกตอนเว็บโหลดเสร็จ
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const loader = document.getElementById('page-loader');
+        loader.style.opacity = '0';
+        loader.style.visibility = 'hidden';
+    }, 400); // ดีเลย์นิดนึงให้ดูสมูท
+});
+
 window.onload = () => {
     const storedUser = localStorage.getItem('ntun_user_session');
     const storedTime = localStorage.getItem('ntun_user_time');
@@ -26,7 +35,7 @@ window.onload = () => {
     if (storedUser && storedTime && (Date.now() - parseInt(storedTime) < SESSION_LIMIT)) {
         currentUser = JSON.parse(storedUser);
         renderAuthUI(); 
-        unlock(false); // ใส่ false เพื่อไม่ให้จอกระตุกเลื่อนเองถ้ารีเฟรช
+        unlock(false); 
     } else {
         localStorage.removeItem('ntun_user_session');
     }
@@ -42,7 +51,7 @@ function handleSignIn(response) {
             localStorage.setItem('ntun_user_session', JSON.stringify(payload));
             localStorage.setItem('ntun_user_time', Date.now().toString());
             renderAuthUI(); 
-            unlock(true); // เลื่อนจอสมูทลงมาเมื่อเพิ่งกดล็อกอินเสร็จ
+            unlock(true); 
         } else { 
             alert(`❌ ระบบนี้อนุญาตเฉพาะนักเรียน @${SCHOOL_DOMAIN} เท่านั้น`); 
         }
@@ -50,20 +59,24 @@ function handleSignIn(response) {
 }
 
 function renderAuthUI() {
+    // ซ่อนกล่องให้ล็อกอินในหน้าแรก เพราะล็อกอินแล้ว
+    const promptArea = document.getElementById('login-prompt-area');
+    if (promptArea) promptArea.style.display = 'none';
+
     document.getElementById('auth-section').innerHTML = `
-        <div class="flex items-center gap-3 bg-white/60 p-1.5 pr-4 rounded-full border border-gray-200">
-            <img src="${currentUser.picture}" class="w-9 h-9 rounded-full" referrerpolicy="no-referrer">
+        <div class="flex items-center gap-3 bg-white/60 p-1.5 pr-4 rounded-full border border-gray-200 shadow-sm transition-all hover:bg-white cursor-pointer btn-bouncy">
+            <img src="${currentUser.picture}" class="w-9 h-9 rounded-full shadow-sm" referrerpolicy="no-referrer">
             <div class="hidden sm:block"><p class="text-[11px] font-bold text-gray-800 leading-none">${currentUser.name}</p></div>
-            <button onclick="logout()" class="ml-1 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 hover:bg-rose-500 hover:text-white transition text-[9px]" title="ออกจากระบบ">✕</button>
+            <button onclick="logout()" class="ml-1 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-rose-500 hover:text-white transition text-[9px]" title="ออกจากระบบ">✕</button>
         </div>`;
     
-    // อัปเดตเมนูเมื่อล็อกอิน: มีหน้าหลัก กลับมาให้แล้ว!
+    // เปลี่ยนเมนูให้เป็นปุ่มกดเด้งๆ Modal แทนการเปลี่ยนหน้า
     document.getElementById('nav-links').innerHTML = `
         <div class="flex items-center bg-white/50 p-1.5 rounded-full border border-gray-200/80 backdrop-blur-xl shadow-sm shrink-0 gap-1">
-            <a href="#top-page" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">🏠 หน้าหลัก</a>
-            <a href="#app-content" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">🎁 ฝาก & รับของ</a>
-            <button onclick="toggleHistory()" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">📁 ประวัติ</button>
-            <button onclick="toggleGuide()" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">📖 คู่มือ</button>
+            <button onclick="document.getElementById('top-page').scrollIntoView({behavior: 'smooth'})" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all btn-bouncy">🏠 หน้าแรก</button>
+            <button onclick="document.getElementById('app-content').scrollIntoView({behavior: 'smooth'})" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all btn-bouncy">🎁 กระดานแบ่งปัน</button>
+            <button onclick="toggleHistory()" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all btn-bouncy">📁 ประวัติ</button>
+            <button onclick="toggleGuide()" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all btn-bouncy">📖 คู่มือ</button>
         </div>
     `;
 }
@@ -75,13 +88,18 @@ function logout() {
 }
 
 function unlock(shouldScroll) {
-    // เราจะไม่ซ่อนหน้าแรก (#login-placeholder) แล้ว เพื่อให้เป็น "หน้าหลัก" จริงๆ
-    document.getElementById('app-content').style.display = 'block';
+    const appContent = document.getElementById('app-content');
+    appContent.style.display = 'block';
+    // เพิ่มคลาสให้ตัวแอปเด้งขึ้นมาสวยๆ ตอนล็อกอิน
+    appContent.classList.add('animate-fade-up');
+    
     autoCleanUp(); 
     renderFeed();
     
     if(shouldScroll) {
-        document.getElementById('app-content').scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+            appContent.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
     }
 }
 
@@ -129,7 +147,7 @@ function setFilter(cat) {
     const btns = document.getElementById('category-filters').children;
     for(let b of btns) {
         b.className = (b.innerText === cat || (cat === 'ทั้งหมด' && b.innerText === 'รวมทั้งหมด'))
-            ? 'cat-btn active' : 'cat-btn';
+            ? 'cat-btn active btn-bouncy' : 'cat-btn btn-bouncy';
     }
     renderFeed();
 }
@@ -182,23 +200,24 @@ function renderFeed() {
     }
 
     if (displayPosts.length === 0) {
-        feed.innerHTML = `<div class="col-span-full py-24 text-center text-gray-400 bg-white/50 rounded-[28px] border-2 border-dashed border-gray-200">ยังไม่มีสิ่งของในหมวดหมู่นี้</div>`;
+        feed.innerHTML = `<div class="col-span-full py-24 text-center text-gray-400 bg-white/50 rounded-[28px] border-2 border-dashed border-gray-200 animate-fade-up">ยังไม่มีสิ่งของในหมวดหมู่นี้</div>`;
         return;
     }
 
-    feed.innerHTML = displayPosts.map(post => {
+    feed.innerHTML = displayPosts.map((post, idx) => {
         const isOwner = post.email === currentUser.email;
         let badge = `<span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">ว่าง</span>`;
         let btn = isOwner 
             ? `<span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg">ของของคุณ</span>`
-            : `<button onclick="reserve(${post.id})" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-ios shadow-md hover:shadow-lg">รับของ</button>`;
+            : `<button onclick="reserve(${post.id})" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-bouncy shadow-md hover:shadow-lg hover:bg-gray-900">รับของ</button>`;
         
-        let cardClass = "ios-card overflow-hidden flex flex-col h-full";
+        let cardClass = `ios-card overflow-hidden flex flex-col h-full animate-fade-up`;
+        let delayStyle = `animation-delay: ${idx * 0.05}s;`; // ให้การ์ดโหลดไล่ระดับลงมา
 
         if (post.status === 'reserved') {
             badge = `<span class="bg-amber-50 text-amber-600 px-3 py-1 rounded-full text-[10px] font-bold">จองแล้วโดย ${post.reservedBy}</span>`;
             btn = isOwner 
-                ? `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold btn-ios animate-pulse">ยืนยันว่าส่งแล้ว</button>` 
+                ? `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold btn-bouncy animate-pulse hover:bg-emerald-600">ยืนยันว่าส่งแล้ว</button>` 
                 : `<span class="text-[10px] text-amber-500 font-bold bg-amber-50 px-3 py-1.5 rounded-lg">ไม่ว่าง</span>`;
             cardClass += " opacity-95 border-amber-100";
         } else if (post.status === 'completed') {
@@ -208,7 +227,7 @@ function renderFeed() {
         }
 
         return `
-        <div class="${cardClass}">
+        <div class="${cardClass}" style="${delayStyle}">
             ${post.image ? `<div class="w-full h-48 bg-gray-100 relative shrink-0"><img src="${post.image}" class="w-full h-full object-cover"></div>` : ''}
             <div class="p-5 flex flex-col flex-1">
                 <div class="flex justify-between items-start mb-2"><span class="text-[10px] font-bold text-gray-500 truncate mr-2">${post.cat}</span>${badge}</div>
@@ -221,7 +240,7 @@ function renderFeed() {
                 </div>
                 <div class="flex items-center justify-between pt-3 border-t border-gray-100/80">
                     <div class="flex items-center gap-2"><img src="${post.avatar}" class="w-7 h-7 rounded-full border border-gray-200"><span class="text-[11px] font-bold text-gray-800">${post.user}</span></div>
-                    <div class="flex items-center gap-2">${btn} ${isOwner ? `<button onclick="del(${post.id})" class="text-rose-400 text-sm hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors">🗑️</button>` : ''}</div>
+                    <div class="flex items-center gap-2">${btn} ${isOwner ? `<button onclick="del(${post.id})" class="text-rose-400 text-sm hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors btn-bouncy">🗑️</button>` : ''}</div>
                 </div>
             </div>
         </div>`;
@@ -244,7 +263,7 @@ function complete(id) {
 function del(id) { if(confirm("ต้องการลบโพสต์นี้ถาวรใช่ไหม?")) { posts = posts.filter(x => x.id !== id); saveData(); renderFeed(); } }
 function saveData() { localStorage.setItem('ntun_v4_posts', JSON.stringify(posts)); }
 
-// --- Modal Functions ---
+// --- Modal Functions (แอนิเมชันเด้งๆ) ---
 function toggleHistory() {
     if (!currentUser) return alert("⚠️ กรุณาล็อกอินด้วยอีเมลโรงเรียนก่อนเข้าดูประวัติครับ!");
     const modal = document.getElementById('history-modal');
@@ -258,22 +277,22 @@ function toggleGuide() {
 }
 
 function showHistoryTab(tab) {
-    document.getElementById('htab-given').className = tab === 'given' ? 'font-bold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-2' : 'font-bold text-gray-400 pb-2 px-2 cursor-pointer';
-    document.getElementById('htab-received').className = tab === 'received' ? 'font-bold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-2' : 'font-bold text-gray-400 pb-2 px-2 cursor-pointer';
+    document.getElementById('htab-given').className = tab === 'given' ? 'font-bold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-2 btn-bouncy' : 'font-bold text-gray-400 pb-2 px-2 cursor-pointer btn-bouncy';
+    document.getElementById('htab-received').className = tab === 'received' ? 'font-bold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-2 btn-bouncy' : 'font-bold text-gray-400 pb-2 px-2 cursor-pointer btn-bouncy';
     
     const list = tab === 'given' ? posts.filter(p => p.email === currentUser.email) : posts.filter(p => p.reservedBy === currentUser.name);
     const content = document.getElementById('history-content');
     
-    if(list.length === 0) return content.innerHTML = `<div class="py-10 text-center text-gray-400 text-sm bg-gray-50 rounded-2xl">ไม่มีประวัติในหมวดหมู่นี้</div>`;
+    if(list.length === 0) return content.innerHTML = `<div class="py-10 text-center text-gray-400 text-sm bg-gray-50 rounded-2xl animate-fade-up">ไม่มีประวัติในหมวดหมู่นี้</div>`;
 
-    content.innerHTML = list.map(p => `
-        <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow">
+    content.innerHTML = list.map((p, idx) => `
+        <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow animate-fade-up" style="animation-delay: ${idx * 0.05}s;">
             ${p.image ? `<img src="${p.image}" class="w-16 h-16 rounded-xl object-cover shrink-0">` : `<div class="w-16 h-16 rounded-xl bg-gray-200 shrink-0"></div>`}
             <div class="flex-1 overflow-hidden">
                 <h4 class="font-bold text-sm leading-tight truncate">${p.name}</h4>
                 <p class="text-[11px] text-gray-500 mt-1">สถานะ: ${p.status === 'completed' ? '✅ จบงานแล้ว' : (p.status === 'reserved' ? '⏳ กำลังรอส่งมอบ' : '✨ ว่าง')}</p>
             </div>
-            ${p.status === 'reserved' && tab === 'given' ? `<button onclick="complete(${p.id}); toggleHistory();" class="text-xs bg-emerald-500 text-white px-3 py-2 rounded-xl font-bold shadow-sm hover:shadow-md">ยืนยันส่ง</button>` : ''}
+            ${p.status === 'reserved' && tab === 'given' ? `<button onclick="complete(${p.id}); toggleHistory();" class="text-xs bg-emerald-500 text-white px-3 py-2 rounded-xl font-bold shadow-sm hover:shadow-md btn-bouncy">ยืนยันส่ง</button>` : ''}
         </div>
     `).join('');
 }
