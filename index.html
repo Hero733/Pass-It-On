@@ -74,6 +74,7 @@
             <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline"></div>
         </div>
     </nav>
+
     <main class="max-w-[1200px] mx-auto px-4 md:px-8 min-h-screen relative overflow-hidden">
         
         <section id="page-landing" class="py-12 md:py-24 flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 page-enter absolute w-full inset-x-0">
@@ -175,4 +176,14 @@
                 <button onclick="switchGuideTab('taker')" id="gtab-taker" class="pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors">คนรับ</button>
             </div>
             <div class="relative bg-black/5 rounded-2xl flex items-center justify-center h-[40vh] md:h-[50vh] overflow-hidden group">
-                <button onclick="prevSlide()" class="absolute left-2 md:left-4 w-10 h-10 bg-white/80 backdrop-blur-
+                <button onclick="prevSlide()" class="absolute left-2 md:left-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full shadow-sm flex items-center justify-center hover:bg-white z-10 font-bold text-[#1d1d1f] btn-press">❮</button>
+                <img id="guide-slider-img" src="" alt="Guide" class="max-w-full max-h-full object-contain p-2 transition-opacity duration-300">
+                <button onclick="nextSlide()" class="absolute right-2 md:right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full shadow-sm flex items-center justify-center hover:bg-white z-10 font-bold text-[#1d1d1f] btn-press">❯</button>
+                <div class="absolute bottom-4 bg-[#1d1d1f]/80 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-medium shadow-sm" id="slide-counter">1 / 4</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
