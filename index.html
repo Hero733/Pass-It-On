@@ -7,132 +7,113 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
         :root { font-family: 'Noto Sans Thai', -apple-system, sans-serif; }
         body { background: #f2f2f7; color: #1d1d1f; -webkit-font-smoothing: antialiased; }
-        
-        /* Ultra Liquid Glass */
-        .glass-nav { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(40px) saturate(200%); border-bottom: 1px solid rgba(255, 255, 255, 0.5); }
-        .ios-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,1); border-radius: 32px; box-shadow: 0 12px 40px -10px rgba(0,0,0,0.05); transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .ios-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px -12px rgba(0,0,0,0.1); border-color: rgba(255,255,255,0.8); }
-        
-        .btn-ios { transition: transform 0.2s ease, opacity 0.2s; }
-        .btn-ios:active { transform: scale(0.94); opacity: 0.8; }
-        ::-webkit-scrollbar { width: 0px; }
-        #app-content, #admin-panel { display: none; }
-        
-        /* Segmented Control (Apple Style) */
-        .segmented-control { background: rgba(0,0,0,0.05); padding: 4px; border-radius: 20px; display: inline-flex; }
-        .segment-btn { padding: 8px 20px; border-radius: 16px; font-size: 13px; font-weight: 600; color: #666; transition: all 0.3s ease; }
-        .segment-btn.active { background: white; color: black; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        .animate-card { animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .glass-nav { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(40px) saturate(200%); border-bottom: 1px solid rgba(255, 255, 255, 0.5); }
+        .ios-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,1); border-radius: 32px; box-shadow: 0 12px 40px -10px rgba(0,0,0,0.05); transition: all 0.4s; }
+        .ios-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px -12px rgba(0,0,0,0.1); }
+        .btn-ios:active { transform: scale(0.94); }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        #app-content, #admin-panel, #history-modal { display: none; }
+        .cat-btn { white-space: nowrap; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; background: white; border: 1px solid #e5e7eb; color: #4b5563; transition: all 0.2s; }
+        .cat-btn.active { background: #1d1d1f; color: white; border-color: #1d1d1f; }
+        @keyframes modalPop { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .animate-modal { animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="overflow-x-hidden relative">
 
-    <div class="fixed top-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-indigo-300/30 rounded-full blur-[140px] z-[-1] mix-blend-multiply"></div>
-    <div class="fixed bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-300/30 rounded-full blur-[120px] z-[-1] mix-blend-multiply"></div>
-    <div class="fixed top-[40%] left-[20%] w-[40vw] h-[40vw] bg-pink-200/20 rounded-full blur-[100px] z-[-1]"></div>
+    <div class="fixed top-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-indigo-300/30 rounded-full blur-[140px] z-[-1]"></div>
+    <div class="fixed bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-300/30 rounded-full blur-[120px] z-[-1]"></div>
 
     <nav class="sticky top-0 z-[100] glass-nav px-6 py-4 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <div class="w-11 h-11 bg-gradient-to-br from-gray-900 to-gray-700 rounded-[14px] flex items-center justify-center text-white shadow-md">
-                <span class="text-xl font-bold">P</span>
-            </div>
+            <div class="w-11 h-11 bg-gradient-to-br from-gray-900 to-gray-700 rounded-[14px] flex items-center justify-center text-white shadow-md font-bold text-xl">P</div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight leading-none text-gray-900">Pass It On</h1>
-                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">NTUN Community</span>
             </div>
-            <a href="guide.html" class="ml-4 text-xs font-semibold text-gray-400 hover:text-black transition-colors bg-white/50 px-3 py-1.5 rounded-full border border-gray-200">คู่มือ</a>
+            <a href="guide.html" class="ml-4 text-xs font-semibold text-gray-500 hover:text-black underline">คู่มือ</a>
         </div>
-
         <div id="auth-section">
             <div id="g_id_onload" data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" data-callback="handleSignIn"></div>
             <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
         </div>
     </nav>
 
+    <div id="history-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] w-full max-w-2xl p-8 animate-modal shadow-2xl relative max-h-[85vh] flex flex-col">
+            <button onclick="toggleHistory()" class="absolute top-6 right-6 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center font-bold hover:bg-gray-200">✕</button>
+            <h2 class="text-3xl font-bold mb-2">ประวัติของคุณ 📁</h2>
+            <p class="text-sm text-gray-500 mb-6">รวมรายการที่คุณเคยฝาก และเคยรับไปแล้ว</p>
+            
+            <div class="flex gap-4 mb-4 border-b border-gray-100 pb-2">
+                <button onclick="showHistoryTab('given')" id="htab-given" class="font-bold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-2">ของที่เคยฝาก</button>
+                <button onclick="showHistoryTab('received')" id="htab-received" class="font-bold text-gray-400 pb-2 px-2">ของที่เคยรับ</button>
+            </div>
+            <div id="history-content" class="overflow-y-auto hide-scroll flex-1 space-y-4"></div>
+        </div>
+    </div>
+
     <main class="max-w-[1280px] mx-auto px-4 md:px-8 py-8">
         
-        <div id="login-placeholder" class="text-center py-32 animate-card">
-            <h2 class="text-6xl md:text-8xl font-black tracking-tighter mb-6 bg-gradient-to-br from-gray-900 via-gray-700 to-gray-400 bg-clip-text text-transparent">
-                Give freely.<br>Take kindly.
-            </h2>
-            <p class="text-gray-500 text-lg md:text-xl font-medium">แบ่งปันสิ่งของที่ไม่ได้ใช้ ให้กับคนที่ต้องการ</p>
+        <div id="login-placeholder" class="text-center py-32">
+            <h2 class="text-6xl md:text-8xl font-black tracking-tighter mb-6 bg-gradient-to-br from-gray-900 to-gray-400 bg-clip-text text-transparent">Give freely.<br>Take kindly.</h2>
         </div>
 
-        <section id="admin-panel" class="mb-12 p-8 bg-gray-900 text-white rounded-[40px] shadow-2xl relative overflow-hidden animate-card">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Admin Console</h2>
-                <button onclick="clearCompleted()" class="bg-rose-500/20 text-rose-400 px-4 py-2 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition-all">ล้างข้อมูล (สำเร็จ)</button>
-            </div>
-            <div class="flex gap-2">
-                <input type="email" id="new-admin-email" placeholder="เพิ่มแอดมิน (email@ntun.ac.th)" class="flex-1 bg-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none">
-                <button onclick="addAdmin()" class="bg-white text-black px-4 py-2 rounded-xl text-sm font-bold">เพิ่ม</button>
-            </div>
-        </section>
-
-        <div id="app-content" class="animate-card">
+        <div id="app-content">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
                 
                 <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
                     <div class="ios-card p-8">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xl">🎁</div>
-                            <h3 class="text-2xl font-bold tracking-tight">ลงของฝาก</h3>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-2xl font-bold tracking-tight flex items-center gap-2"><span class="text-2xl">🎁</span> ลงของฝาก</h3>
+                            <button onclick="toggleHistory()" class="text-xs bg-gray-100 px-3 py-1.5 rounded-full font-bold hover:bg-gray-200">ดูประวัติ</button>
                         </div>
                         
                         <form id="post-form" onsubmit="handlePost(event)">
                             <div class="space-y-4">
                                 <div class="relative group">
                                     <input type="file" id="itemImage" accept="image/*" class="hidden" onchange="previewImage(this)">
-                                    <div onclick="document.getElementById('itemImage').click()" class="w-full h-48 bg-gray-50/80 border border-gray-200 rounded-[24px] flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-all overflow-hidden relative">
-                                        <div id="preview-placeholder" class="text-center">
-                                            <span class="text-3xl block mb-2 opacity-60">📷</span>
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">อัปโหลดรูปภาพ</p>
-                                        </div>
+                                    <div onclick="document.getElementById('itemImage').click()" class="w-full h-48 bg-gray-50 border border-gray-200 rounded-[24px] flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 relative overflow-hidden">
+                                        <div id="preview-placeholder" class="text-center"><span class="text-3xl block mb-2 opacity-60">📷</span></div>
                                         <img id="image-preview-el" class="hidden w-full h-full object-cover">
-                                        <div id="remove-img" onclick="event.stopPropagation(); removeSelectedImg();" class="hidden absolute top-3 right-3 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center backdrop-blur-md">✕</div>
+                                        <div id="remove-img" onclick="event.stopPropagation(); removeSelectedImg();" class="hidden absolute top-3 right-3 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center">✕</div>
                                     </div>
                                 </div>
-
-                                <input type="text" id="itemName" required class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm" placeholder="ชื่อสิ่งของ...">
-                                
-                                <select id="itemCat" class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm outline-none appearance-none shadow-sm">
-                                    <option>📚 หนังสือเรียน</option>
-                                    <option>👕 ชุดนักเรียน / พละ</option>
-                                    <option>✏️ อุปกรณ์การเรียน</option>
+                                <input type="text" id="itemName" required class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm focus:border-indigo-500 outline-none" placeholder="ชื่อสิ่งของ...">
+                                <select id="itemCat" class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm outline-none appearance-none">
+                                    <option>📚 หนังสือเรียน / ชีทสรุป</option>
+                                    <option>👕 เสื้อผ้า / ชุดนักเรียน / พละ</option>
+                                    <option>✏️ อุปกรณ์การเรียน / เครื่องเขียน</option>
+                                    <option>💻 อุปกรณ์ไอที / หูฟัง / เคส</option>
+                                    <option>⚽ อุปกรณ์กีฬา</option>
+                                    <option>🎸 งานอดิเรก / ดนตรี / ของเล่น</option>
                                     <option>📦 อื่นๆ</option>
                                 </select>
-
-                                <input type="text" id="itemContact" required class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm" placeholder="ช่องทางติดต่อ (Line ID / เบอร์โทร)">
-
-                                <textarea id="itemDetail" rows="3" required class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none shadow-sm" placeholder="รายละเอียดจุดนัดรับ..."></textarea>
-
-                                <button type="submit" class="w-full bg-gradient-to-r from-gray-900 to-gray-800 text-white font-bold py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all btn-ios">
-                                    ประกาศหาเจ้าของใหม่
-                                </button>
+                                <input type="text" id="itemContact" required class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm focus:border-indigo-500 outline-none" placeholder="ช่องทางติดต่อ (Line ID / เบอร์โทร)">
+                                <textarea id="itemDetail" rows="2" required class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm outline-none focus:border-indigo-500 resize-none" placeholder="รายละเอียดจุดนัดรับ..."></textarea>
+                                <button type="submit" class="w-full bg-gradient-to-r from-gray-900 to-gray-800 text-white font-bold py-4 rounded-2xl btn-ios shadow-lg">ประกาศหาเจ้าของใหม่</button>
                             </div>
                         </form>
                     </div>
                 </div>
 
                 <div class="lg:col-span-8">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                        <h3 class="text-3xl font-bold tracking-tight">กระดานแบ่งปัน</h3>
-                        
-                        <div class="segmented-control shadow-sm">
-                            <button onclick="setFilter('all')" id="tab-all" class="segment-btn active">ของทั้งหมด (รับของ)</button>
-                            <button onclick="setFilter('mine')" id="tab-mine" class="segment-btn">ของที่ฉันลง (ฝากของ)</button>
-                        </div>
-                    </div>
+                    <h3 class="text-3xl font-bold tracking-tight mb-4">กระดานแบ่งปัน</h3>
                     
+                    <div class="flex overflow-x-auto hide-scroll gap-2 mb-6 pb-2" id="category-filters">
+                        <button onclick="setFilter('ทั้งหมด')" class="cat-btn active">รวมทั้งหมด</button>
+                        <button onclick="setFilter('📚')" class="cat-btn">📚 หนังสือ/ชีท</button>
+                        <button onclick="setFilter('👕')" class="cat-btn">👕 เสื้อผ้า</button>
+                        <button onclick="setFilter('✏️')" class="cat-btn">✏️ เครื่องเขียน</button>
+                        <button onclick="setFilter('💻')" class="cat-btn">💻 ไอที</button>
+                        <button onclick="setFilter('⚽')" class="cat-btn">⚽ กีฬา</button>
+                        <button onclick="setFilter('📦')" class="cat-btn">📦 อื่นๆ</button>
+                    </div>
+
                     <div id="feed" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                 </div>
-
             </div>
         </div>
     </main>
