@@ -3,103 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>วิธีใช้งาน | Pass It On</title>
+    <title>คู่มือการใช้งาน | Pass It On</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { font-family: 'Noto Sans Thai', -apple-system, sans-serif; }
-        body { background: #f4f4f7; color: #1d1d1f; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-
-        /* 💧 Liquid Glass Effect */
-        .liquid-glass {
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(40px) saturate(250%);
-            -webkit-backdrop-filter: blur(40px) saturate(250%);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
-        }
-
+        body { background: #f2f2f7; color: #1d1d1f; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .liquid-glass { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(40px) saturate(250%); border: 1px solid rgba(255, 255, 255, 0.7); box-shadow: 0 24px 48px rgba(0, 0, 0, 0.05); }
         .slider-container { transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
-        .btn-glass { transition: all 0.3s ease; }
-        .btn-glass:active { transform: scale(0.92); }
+        .tab-btn { transition: all 0.3s; }
+        .tab-btn.active { background: #1d1d1f; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .hidden-tab { display: none; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen relative">
-
+<body class="flex items-center justify-center min-h-screen relative py-12">
     <div class="fixed top-[-10%] right-[-10%] w-[70vw] h-[70vw] bg-blue-300/40 rounded-full blur-[120px] z-[-1] animate-pulse"></div>
-    <div class="fixed bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-emerald-300/40 rounded-full blur-[120px] z-[-1]" style="animation: pulse 4s infinite alternate;"></div>
+    <div class="fixed bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-emerald-300/40 rounded-full blur-[120px] z-[-1]"></div>
 
     <main class="relative z-10 w-full max-w-4xl p-6">
-        <div class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-2">How to Use</h1>
-            <p class="text-gray-500 font-medium">ส่งต่อสิ่งของง่ายๆ ใน 3 ขั้นตอน</p>
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">How to Use</h1>
+            <div class="inline-flex bg-white/40 p-1.5 rounded-full backdrop-blur-md border border-white/50">
+                <button onclick="switchTab('giver')" id="btn-giver" class="tab-btn active px-6 py-2.5 rounded-full text-sm font-bold">🎁 สำหรับคนฝาก</button>
+                <button onclick="switchTab('receiver')" id="btn-receiver" class="tab-btn px-6 py-2.5 rounded-full text-sm font-bold text-gray-600">🤝 สำหรับคนรับ</button>
+            </div>
         </div>
 
         <div class="liquid-glass rounded-[40px] p-6 md:p-10 relative overflow-hidden flex flex-col items-center">
-            <div class="w-full overflow-hidden rounded-[24px]">
-                <div id="slider" class="slider-container flex w-[300%]">
-                    
-                    <div class="w-1/3 flex flex-col items-center justify-center px-4">
-                        <div class="w-full h-64 md:h-80 bg-gray-200/50 rounded-[20px] mb-6 flex items-center justify-center text-6xl shadow-inner border border-white/40">
-                            📲
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">1. ล็อกอินเข้าสู่ระบบ</h3>
-                        <p class="text-gray-500 text-center">ใช้อีเมล @ntun.ac.th ของโรงเรียนเพื่อยืนยันตัวตน</p>
+            
+            <div id="tab-giver" class="w-full">
+                <div class="overflow-hidden rounded-[24px]">
+                    <div id="slider-giver" class="slider-container flex w-[400%]">
+                        <div class="w-1/4 px-4 text-center"><div class="h-64 bg-gray-200/60 rounded-[20px] mb-6 flex items-center justify-center text-6xl">📲</div><h3 class="text-2xl font-bold mb-2">1. ล็อกอิน</h3><p class="text-gray-500">ใช้อีเมล @ntun.ac.th</p></div>
+                        <div class="w-1/4 px-4 text-center"><div class="h-64 bg-gray-200/60 rounded-[20px] mb-6 flex items-center justify-center text-6xl">📸</div><h3 class="text-2xl font-bold mb-2">2. ถ่ายรูป & ลงรายละเอียด</h3><p class="text-gray-500">ลงของพร้อมใส่ช่องทางติดต่อ</p></div>
+                        <div class="w-1/4 px-4 text-center"><div class="h-64 bg-gray-200/60 rounded-[20px] mb-6 flex items-center justify-center text-6xl">⏳</div><h3 class="text-2xl font-bold mb-2">3. รอคนมารับ</h3><p class="text-gray-500">รอเพื่อนกดจองและทักมาหาคุณ</p></div>
+                        <div class="w-1/4 px-4 text-center"><div class="h-64 bg-gray-200/60 rounded-[20px] mb-6 flex items-center justify-center text-6xl">✅</div><h3 class="text-2xl font-bold mb-2">4. กดยืนยันการส่ง</h3><p class="text-gray-500">เมื่อให้ของแล้ว กดปิดงานในระบบ</p></div>
                     </div>
-
-                    <div class="w-1/3 flex flex-col items-center justify-center px-4">
-                        <div class="w-full h-64 md:h-80 bg-gray-200/50 rounded-[20px] mb-6 flex items-center justify-center text-6xl shadow-inner border border-white/40">
-                            📸
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">2. ถ่ายรูป & เขียนรายละเอียด</h3>
-                        <p class="text-gray-500 text-center">ระบุสิ่งของ พร้อมใส่ช่องทางการติดต่อของคุณ</p>
+                </div>
+                <div class="flex justify-center items-center gap-6 mt-8">
+                    <button onclick="moveGiver(-1)" class="w-12 h-12 bg-white/60 rounded-full shadow-md font-bold">←</button>
+                    <div class="flex gap-2" id="dots-giver">
+                        <span class="w-2.5 h-2.5 rounded-full bg-gray-800"></span><span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span><span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span><span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
                     </div>
-
-                    <div class="w-1/3 flex flex-col items-center justify-center px-4">
-                        <div class="w-full h-64 md:h-80 bg-gray-200/50 rounded-[20px] mb-6 flex items-center justify-center text-6xl shadow-inner border border-white/40">
-                            🤝
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">3. นัดรับ & ยืนยันการส่ง</h3>
-                        <p class="text-gray-500 text-center">ส่งมอบของให้เพื่อนอย่างปลอดภัย และกดยืนยันในระบบ</p>
-                    </div>
+                    <button onclick="moveGiver(1)" class="w-12 h-12 bg-white/60 rounded-full shadow-md font-bold">→</button>
                 </div>
             </div>
 
-            <div class="flex items-center gap-6 mt-10">
-                <button onclick="moveSlide(-1)" class="btn-glass w-12 h-12 flex items-center justify-center bg-white/60 backdrop-blur-md rounded-full shadow-lg border border-white/80 text-xl font-bold hover:bg-white text-gray-700">←</button>
-                
-                <div class="flex gap-3" id="dots">
-                    <span class="w-2.5 h-2.5 rounded-full bg-gray-800 transition-all"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-gray-300 transition-all"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-gray-300 transition-all"></span>
+            <div id="tab-receiver" class="w-full hidden-tab">
+                <div class="overflow-hidden rounded-[24px]">
+                    <div id="slider-receiver" class="slider-container flex w-[300%]">
+                        <div class="w-1/3 px-4 text-center"><div class="h-64 bg-gray-200/60 rounded-[20px] mb-6 flex items-center justify-center text-6xl">📲</div><h3 class="text-2xl font-bold mb-2">1. ล็อกอิน</h3><p class="text-gray-500">ยืนยันตัวตนด้วยอีเมลโรงเรียน</p></div>
+                        <div class="w-1/3 px-4 text-center"><div class="h-64 bg-gray-200/60 rounded-[20px] mb-6 flex items-center justify-center text-6xl">🔍</div><h3 class="text-2xl font-bold mb-2">2. เลือกของ & กดจอง</h3><p class="text-gray-500">หาของที่อยากได้แล้วกดรับสิทธิ์</p></div>
+                        <div class="w-1/3 px-4 text-center"><div class="h-64 bg-gray-200/60 rounded-[20px] mb-6 flex items-center justify-center text-6xl">🏃‍♂️</div><h3 class="text-2xl font-bold mb-2">3. ติดต่อ & ไปรับของ</h3><p class="text-gray-500">ทักหาเจ้าของเพื่อไปรับของทันที</p></div>
+                    </div>
                 </div>
-
-                <button onclick="moveSlide(1)" class="btn-glass w-12 h-12 flex items-center justify-center bg-white/60 backdrop-blur-md rounded-full shadow-lg border border-white/80 text-xl font-bold hover:bg-white text-gray-700">→</button>
+                <div class="flex justify-center items-center gap-6 mt-8">
+                    <button onclick="moveReceiver(-1)" class="w-12 h-12 bg-white/60 rounded-full shadow-md font-bold">←</button>
+                    <div class="flex gap-2" id="dots-receiver">
+                        <span class="w-2.5 h-2.5 rounded-full bg-gray-800"></span><span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span><span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+                    </div>
+                    <button onclick="moveReceiver(1)" class="w-12 h-12 bg-white/60 rounded-full shadow-md font-bold">→</button>
+                </div>
             </div>
         </div>
 
         <div class="text-center mt-12">
-            <a href="index.html" class="inline-block bg-[#1d1d1f] text-white px-10 py-4 rounded-full font-bold text-lg shadow-2xl hover:scale-105 hover:bg-black transition-all">
-                เริ่มต้นใช้งานแอป 🚀
-            </a>
+            <a href="index.html" class="inline-block bg-[#1d1d1f] text-white px-10 py-4 rounded-full font-bold text-lg shadow-2xl hover:scale-105 hover:bg-black transition-all">กลับสู่แอป 🚀</a>
         </div>
     </main>
 
     <script>
-        let currentSlide = 0;
-        function moveSlide(dir) {
-            const dots = document.getElementById('dots').children;
-            currentSlide += dir;
-            if (currentSlide < 0) currentSlide = 0;
-            if (currentSlide > 2) currentSlide = 2;
-            
-            document.getElementById('slider').style.transform = `translateX(-${currentSlide * (100 / 3)}%)`;
-            
-            for(let i=0; i<dots.length; i++) {
-                dots[i].className = i === currentSlide 
-                    ? "w-2.5 h-2.5 rounded-full bg-gray-800 transition-all scale-125" 
-                    : "w-2.5 h-2.5 rounded-full bg-gray-300 transition-all";
-            }
+        let currGiver = 0, currRec = 0;
+        function switchTab(tab) {
+            document.getElementById('tab-giver').classList.toggle('hidden-tab', tab !== 'giver');
+            document.getElementById('tab-receiver').classList.toggle('hidden-tab', tab !== 'receiver');
+            document.getElementById('btn-giver').className = tab === 'giver' ? 'tab-btn active px-6 py-2.5 rounded-full text-sm font-bold' : 'tab-btn px-6 py-2.5 rounded-full text-sm font-bold text-gray-600';
+            document.getElementById('btn-receiver').className = tab === 'receiver' ? 'tab-btn active px-6 py-2.5 rounded-full text-sm font-bold' : 'tab-btn px-6 py-2.5 rounded-full text-sm font-bold text-gray-600';
+        }
+        function moveGiver(dir) {
+            currGiver = Math.max(0, Math.min(3, currGiver + dir));
+            document.getElementById('slider-giver').style.transform = `translateX(-${currGiver * 25}%)`;
+            updateDots('dots-giver', currGiver, 4);
+        }
+        function moveReceiver(dir) {
+            currRec = Math.max(0, Math.min(2, currRec + dir));
+            document.getElementById('slider-receiver').style.transform = `translateX(-${currRec * (100/3)}%)`;
+            updateDots('dots-receiver', currRec, 3);
+        }
+        function updateDots(id, curr, total) {
+            const dots = document.getElementById(id).children;
+            for(let i=0; i<total; i++) dots[i].className = i === curr ? "w-2.5 h-2.5 rounded-full bg-gray-800" : "w-2.5 h-2.5 rounded-full bg-gray-300";
         }
     </script>
 </body>
