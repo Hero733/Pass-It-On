@@ -1,125 +1,140 @@
 // ==========================================
 // CONFIGURATION & STATE
 // ==========================================
-const SCHOOL_DOMAIN = "ntun.ac.th";
-let posts = JSON.parse(localStorage.getItem('ntun_system_posts')) || [];
+const ALLOWED_DOMAIN = "ntun.ac.th";
+const ADMIN_EMAIL = "aceaa372@gmail.com";
+
+let posts = JSON.parse(localStorage.getItem('ntun_posts_data')) || [];
 let currentUser = null;
 let selectedImageBase64 = null;
 let currentFilter = 'ทั้งหมด';
 
 // ==========================================
-// INITIALIZATION & LOADER
+// GUIDE IMAGES (ใส่ URL หรือชื่อไฟล์รูปของคุณตรงนี้เลยครับ)
 // ==========================================
-window.addEventListener('load', () => {
-    // ให้เวลา Loader ทำงานอย่างน้อย 600ms ให้ดูสมูท
+const guideData = {
+    giver: [
+        "https://via.placeholder.com/800x600.png?text=Giver+Step+1:+Fill+Form",
+        "https://via.placeholder.com/800x600.png?text=Giver+Step+2:+Wait+for+Contact",
+        "https://via.placeholder.com/800x600.png?text=Giver+Step+3:+Mark+as+Completed"
+    ],
+    taker: [
+        "https://via.placeholder.com/800x600.png?text=Taker+Step+1:+Browse+Feed",
+        "https://via.placeholder.com/800x600.png?text=Taker+Step+2:+Click+Reserve",
+        "https://via.placeholder.com/800x600.png?text=Taker+Step+3:+Contact+Owner"
+    ]
+};
+let currentGuideMode = 'giver';
+let currentSlideIdx = 0;
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+window.onload = () => {
     setTimeout(() => {
         const loader = document.getElementById('page-loader');
-        loader.style.opacity = '0';
-        setTimeout(() => loader.style.display = 'none', 400);
-    }, 600);
-});
+        if(loader) loader.style.display = 'none';
+    }, 500);
 
-// Failsafe: ถ้าเว็บเอ๋อ โหลดไม่เสร็จใน 2 วิ ตัดจบ Loader ทันที
-setTimeout(() => {
-    const loader = document.getElementById('page-loader');
-    if (loader && loader.style.display !== 'none') {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.style.display = 'none', 400);
-    }
-}, 2000);
-
-window.onload = () => {
     const session = localStorage.getItem('ntun_session');
     if (session) {
         currentUser = JSON.parse(session);
         renderAuthUI();
-        unlockSystem(false);
+        switchPage('app');
+    } else {
+        switchPage('landing');
     }
-    cleanUpOldPosts(); // ลบโพสต์ที่ส่งมอบสำเร็จเกิน 2 วัน
 };
 
+// สลับหน้า (ซ่อนหน้า Landing, โชว์ App)
+function switchPage(page) {
+    if (page === 'landing') {
+        document.getElementById('page-landing').style.display = 'flex';
+        document.getElementById('page-app').style.display = 'none';
+    } else {
+        document.getElementById('page-landing').style.display = 'none';
+        document.getElementById('page-app').style.display = 'block';
+        document.getElementById('page-app').classList.add('fade-in');
+        renderFeed();
+    }
+}
+
 // ==========================================
-// AUTHENTICATION (Google)
+// AUTHENTICATION
 // ==========================================
 function handleSignIn(response) {
     try {
         const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-        const domain = payload.hd || payload.email.split('@')[1];
+        const email = payload.email;
+        const domain = payload.hd || email.split('@')[1];
 
-        // อนุญาต @ntun.ac.th และอีเมล Admin (แก้เป็นอีเมลตัวเองได้)
-        if (domain === SCHOOL_DOMAIN || payload.email === "aceaa372@gmail.com") {
-            currentUser = { name: payload.name, email: payload.email, picture: payload.picture };
+        // ตรวจสอบสิทธิ์แบบเคร่งครัด
+        if (domain === ALLOWED_DOMAIN || email === ADMIN_EMAIL) {
+            currentUser = { 
+                name: payload.name, 
+                email: email, 
+                picture: payload.picture,
+                isAdmin: (email === ADMIN_EMAIL) // กำหนดสิทธิ์แอดมิน
+            };
             localStorage.setItem('ntun_session', JSON.stringify(currentUser));
             renderAuthUI();
-            unlockSystem(true);
+            switchPage('app');
         } else {
-            alert(`❌ ระบบนี้อนุญาตเฉพาะนักเรียนโดเมน @${SCHOOL_DOMAIN} เท่านั้นครับ`);
+            alert("❌ ระบบนี้อนุญาตเฉพาะนักเรียนโดเมน @ntun.ac.th และแอดมินเท่านั้นครับ");
+            // logout google (force reload to clear state)
+            location.reload(); 
         }
     } catch (e) {
-        console.error("Login failed", e);
+        console.error("Login Error", e);
     }
 }
 
 function logout() {
-    localStorage.removeItem('ntun_session');
-    location.reload();
+    if(confirm('ต้องการออกจากระบบใช่หรือไม่?')) {
+        localStorage.removeItem('ntun_session');
+        location.reload();
+    }
 }
 
 // ==========================================
-// UI RENDERING
+// UI & NAVIGATION
 // ==========================================
 function renderAuthUI() {
-    // ซ่อนปุ่มล็อกอินเดิม
+    const navActions = document.getElementById('nav-actions');
+    navActions.innerHTML = `
+        <button onclick="openModal('modal-history')" class="px-3 py-2 rounded-lg text-sm font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 btn-press">ประวัติ</button>
+        <button onclick="openModal('modal-guide')" class="px-3 py-2 rounded-lg text-sm font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 btn-press">คู่มือ</button>
+    `;
+    navActions.classList.remove('hidden');
+
     document.getElementById('auth-section').innerHTML = `
-        <div onclick="if(confirm('ต้องการออกจากระบบใช่หรือไม่?')) logout()" class="flex items-center gap-3 bg-white p-1 pr-4 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:bg-rose-50 transition-colors btn-press" title="คลิกเพื่อออกจากระบบ">
-            <img src="${currentUser.picture}" class="w-8 h-8 rounded-full border border-gray-200" referrerpolicy="no-referrer">
-            <span class="text-xs font-bold text-gray-800 hidden sm:block">${currentUser.name.split(' ')[0]}</span>
+        <div onclick="logout()" class="flex items-center gap-2 bg-gray-50 p-1 pr-3 rounded-full border border-gray-200 cursor-pointer hover:bg-red-50 btn-press" title="ออกจากระบบ">
+            <img src="${currentUser.picture}" class="w-7 h-7 rounded-full border border-gray-200">
+            <span class="text-xs font-bold text-gray-800 ${currentUser.isAdmin ? 'text-red-600' : ''}">${currentUser.isAdmin ? 'Admin' : currentUser.name.split(' ')[0]}</span>
         </div>
     `;
-
-    const navButtons = `
-        <button onclick="document.getElementById('top').scrollIntoView()" class="px-4 py-2 rounded-full text-xs font-bold text-gray-600 hover:bg-white hover:text-black hover:shadow-sm transition-all btn-press">🏠 หน้าแรก</button>
-        <button onclick="document.getElementById('app-content').scrollIntoView()" class="px-4 py-2 rounded-full text-xs font-bold text-gray-600 hover:bg-white hover:text-black hover:shadow-sm transition-all btn-press">✨ กระดาน</button>
-        <button onclick="toggleModal('modal-history')" class="px-4 py-2 rounded-full text-xs font-bold text-gray-600 hover:bg-white hover:text-black hover:shadow-sm transition-all btn-press">📁 ประวัติ</button>
-        <button onclick="toggleModal('modal-guide')" class="px-4 py-2 rounded-full text-xs font-bold text-gray-600 hover:bg-white hover:text-black hover:shadow-sm transition-all btn-press">📖 คู่มือ</button>
-    `;
-
-    document.getElementById('nav-actions').innerHTML = navButtons;
-    document.getElementById('nav-actions').classList.remove('hidden');
-    
-    document.getElementById('mobile-nav').innerHTML = navButtons;
-    document.getElementById('mobile-nav').classList.remove('hidden');
-}
-
-function unlockSystem(animateScroll) {
-    const appContent = document.getElementById('app-content');
-    appContent.style.display = 'block';
-    appContent.classList.add('fade-up');
-    
-    renderFeed();
-
-    if (animateScroll) {
-        setTimeout(() => appContent.scrollIntoView({ behavior: 'smooth' }), 300);
-    }
 }
 
 // ==========================================
-// MODAL SYSTEM
+// MODAL CONTROLS (Fade Only, No Bounce)
 // ==========================================
-function toggleModal(id) {
+function openModal(id) {
     const modal = document.getElementById(id);
-    if (modal.style.display === 'flex') {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto'; // คืนค่า Scroll
-    } else {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // ล็อก Scroll ฉากหลัง
-        if (id === 'modal-history') switchHistoryTab('give'); // โหลดหน้าประวัติ
-    }
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    if (id === 'modal-history') switchHistoryTab('give');
+    if (id === 'modal-guide') switchGuideTab('giver'); // โหลดรูปสไลด์แรก
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
 }
 
 // ==========================================
-// FORM & IMAGE HANDLING
+// FORM & DATA
 // ==========================================
 function previewImage(input) {
     if (input.files && input.files[0]) {
@@ -136,7 +151,7 @@ function previewImage(input) {
 }
 
 function removeImage(e) {
-    e.stopPropagation(); // ไม่ให้เด้งไปกดอัปโหลดซ้ำ
+    e.stopPropagation();
     selectedImageBase64 = null;
     document.getElementById('itemImage').value = "";
     document.getElementById('image-preview-el').classList.add('hidden');
@@ -146,54 +161,38 @@ function removeImage(e) {
 
 function handlePost(e) {
     e.preventDefault();
-    if (!currentUser) return alert("กรุณาล็อกอินก่อนครับ!");
-
     const name = document.getElementById('itemName').value;
+    const desc = document.getElementById('itemDesc').value; // ข้อมูลสิ่งของเพิ่มเติม
     const cat = document.getElementById('itemCat').value;
     const contact = document.getElementById('itemContact').value;
-
-    if (!selectedImageBase64) {
-        if (!confirm("ไม่ได้ใส่รูปภาพแน่ใจนะ? (มีรูปเพื่อนจะสนใจมากกว่านะ!)")) return;
-    }
 
     const newPost = {
         id: Date.now(),
         time: Date.now(),
         ownerEmail: currentUser.email,
         ownerName: currentUser.name,
-        ownerAvatar: currentUser.picture,
-        name, cat, contact,
+        name, desc, cat, contact,
         image: selectedImageBase64,
-        status: 'available', // available, reserved, completed
+        status: 'available', 
         reservedByEmail: null,
         reservedByName: null
     };
 
     posts.unshift(newPost);
     saveData();
-    
-    // Reset Form
     e.target.reset();
     removeImage(new Event('click'));
     setFilter('ทั้งหมด');
-    
-    alert("🎉 ประกาศลงกระดานเรียบร้อยแล้ว!");
 }
 
 // ==========================================
-// FEED & FILTER SYSTEM
+// FEED SYSTEM
 // ==========================================
 function setFilter(cat) {
     currentFilter = cat;
-    
-    // Update active tab UI
     const tabs = document.getElementById('filter-container').children;
     for (let tab of tabs) {
-        if (tab.innerText === cat || (cat === 'ทั้งหมด' && tab.innerText === 'รวมทั้งหมด')) {
-            tab.className = 'cat-tab active btn-press';
-        } else {
-            tab.className = 'cat-tab btn-press';
-        }
+        tab.className = (tab.innerText === cat || (cat === 'ทั้งหมด' && tab.innerText === 'ทั้งหมด')) ? 'cat-tab active btn-press' : 'cat-tab btn-press';
     }
     renderFeed();
 }
@@ -203,72 +202,64 @@ function renderFeed() {
     let displayPosts = currentFilter === 'ทั้งหมด' ? posts : posts.filter(p => p.cat === currentFilter);
 
     if (displayPosts.length === 0) {
-        container.innerHTML = `
-            <div class="col-span-full py-20 flex flex-col items-center justify-center text-gray-400 bg-white/50 rounded-3xl border-2 border-dashed border-gray-200">
-                <span class="text-4xl mb-3 opacity-50">📭</span>
-                <p class="font-bold">ยังไม่มีของในหมวดหมู่นี้</p>
-                <p class="text-xs mt-1">เป็นคนแรกที่ลงของสิ!</p>
-            </div>
-        `;
+        container.innerHTML = `<div class="col-span-full py-10 text-center text-gray-400">ยังไม่มีสิ่งของในหมวดหมู่นี้</div>`;
         return;
     }
 
-    container.innerHTML = displayPosts.map((post, idx) => {
-        const isOwner = currentUser && post.ownerEmail === currentUser.email;
-        let badge, actionButton, cardOpacity = "";
+    container.innerHTML = displayPosts.map((post) => {
+        const isOwner = currentUser.email === post.ownerEmail;
+        const isAdmin = currentUser.isAdmin;
+        let badge, actionButton, cardClass = "";
 
-        // Status Logic
         if (post.status === 'completed') {
-            badge = `<span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-[10px] font-bold">✅ ส่งมอบแล้ว</span>`;
-            actionButton = `<span class="text-xs font-bold text-gray-400">จบงานแล้ว</span>`;
-            cardOpacity = "opacity-60 grayscale scale-[0.98]";
-        } 
-        else if (post.status === 'reserved') {
-            badge = `<span class="bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-[10px] font-bold">⏳ จองแล้ว</span>`;
-            cardOpacity = "opacity-90";
+            badge = `<span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded">✅ ส่งมอบแล้ว</span>`;
+            actionButton = `<span class="text-xs font-bold text-gray-400">จบงาน</span>`;
+            cardClass = "opacity-60";
+        } else if (post.status === 'reserved') {
+            badge = `<span class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded">⏳ มีคนรับแล้ว</span>`;
             
             if (isOwner) {
-                actionButton = `<button onclick="completeOrder(${post.id})" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm btn-press shadow-md hover:bg-emerald-600 animate-pulse">ยืนยันว่าส่งของแล้ว</button>`;
+                actionButton = `<button onclick="completeOrder(${post.id})" class="w-full bg-emerald-500 text-white py-2 rounded-lg font-bold text-sm btn-press">ยืนยันการส่งมอบ</button>`;
             } else if (post.reservedByEmail === currentUser.email) {
-                actionButton = `<span class="text-xs font-bold text-amber-500 bg-amber-50 px-4 py-2 rounded-lg w-full text-center inline-block border border-amber-100">คุณจองชิ้นนี้ไว้ (รอรับของ)</span>`;
+                actionButton = `<span class="text-xs font-bold text-amber-600 block text-center">คุณกำลังรอรับของชิ้นนี้</span>`;
             } else {
-                actionButton = `<button disabled class="w-full bg-gray-200 text-gray-400 py-3 rounded-xl font-bold text-sm cursor-not-allowed">ไม่ว่าง</button>`;
+                actionButton = `<button disabled class="w-full bg-gray-100 text-gray-400 py-2 rounded-lg font-bold text-sm">ไม่ว่าง</button>`;
             }
-        } 
-        else {
-            // Available
-            badge = `<span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">✨ ว่าง</span>`;
+        } else {
+            badge = `<span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">ว่าง</span>`;
             if (isOwner) {
-                actionButton = `<span class="text-xs font-bold text-indigo-400 bg-indigo-50/50 px-4 py-2 rounded-lg w-full text-center inline-block">ของของคุณเอง</span>`;
+                actionButton = `<span class="text-xs font-bold text-indigo-400 block text-center">โพสต์ของคุณ</span>`;
             } else {
-                actionButton = `<button onclick="reserveItem(${post.id})" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-sm btn-press shadow-lg hover:bg-indigo-600 transition-colors">รับของชิ้นนี้</button>`;
+                actionButton = `<button onclick="reserveItem(${post.id})" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 btn-press">รับของชิ้นนี้</button>`;
             }
         }
 
-        // Delete button only for owner (and if not completed yet)
-        const delBtn = (isOwner && post.status !== 'completed') 
-            ? `<button onclick="deletePost(${post.id})" class="absolute top-4 right-4 w-8 h-8 bg-black/50 hover:bg-rose-500 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-colors btn-press z-10">🗑️</button>` 
-            : '';
+        // Admin หรือ เจ้าของโพสต์ ลบได้ (ถ้ายังไม่ completed)
+        const canDelete = (isAdmin || isOwner) && post.status !== 'completed';
+        const delBtn = canDelete ? `<button onclick="deletePost(${post.id})" class="absolute top-2 right-2 w-7 h-7 bg-white/80 text-red-500 rounded-full flex items-center justify-center shadow hover:bg-red-500 hover:text-white text-xs z-10 btn-press">✕</button>` : '';
+
+        // ถ้าโพสต์ว่าง, หรือเป็นเจ้าของ, หรือเป็นคนรับ จะเห็นข้อมูลติดต่อ
+        const showContact = post.status === 'available' || isOwner || post.reservedByEmail === currentUser.email || isAdmin;
 
         return `
-            <div class="ios-card overflow-hidden flex flex-col fade-up ${cardOpacity} relative" style="animation-delay: ${idx * 0.05}s">
+            <div class="ios-card flex flex-col relative fade-up ${cardClass}">
                 ${delBtn}
-                ${post.image ? `<img src="${post.image}" class="w-full h-48 object-cover shrink-0">` : `<div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-300 text-sm font-bold">NO IMAGE</div>`}
-                
-                <div class="p-6 flex flex-col flex-1">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider truncate mr-2">${post.cat}</span>
+                ${post.image ? `<img src="${post.image}" class="w-full h-40 object-cover rounded-t-[24px]">` : `<div class="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-xs rounded-t-[24px]">NO IMAGE</div>`}
+                <div class="p-4 flex flex-col flex-1">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold text-gray-500">${post.cat}</span>
                         ${badge}
                     </div>
+                    <h4 class="font-bold text-gray-900 line-clamp-1 mb-1">${post.name}</h4>
                     
-                    <h4 class="text-xl font-black mb-1 text-gray-900 line-clamp-1">${post.name}</h4>
-                    <p class="text-[10px] text-gray-400 mb-4">ลงโดย ${post.ownerName.split(' ')[0]} • ${timeAgo(post.time)}</p>
+                    ${post.desc ? `<p class="text-xs text-gray-600 mb-3 line-clamp-2">${post.desc}</p>` : ''}
                     
-                    <div class="bg-gray-50/80 p-3 rounded-xl mb-5 border border-gray-100/80 mt-auto">
-                        <p class="text-[9px] font-bold text-gray-400 mb-1 uppercase tracking-wider">ติดต่อรับของที่:</p>
-                        <p class="text-sm font-bold text-gray-800 truncate">${post.status === 'available' || (post.status === 'reserved' && (isOwner || post.reservedByEmail === currentUser.email)) ? post.contact : '*** ปิดบังข้อมูล ***'}</p>
+                    <p class="text-[10px] text-gray-400 mb-3">โดย ${post.ownerName}</p>
+                    
+                    <div class="bg-gray-50 p-2 rounded-lg mb-4 mt-auto border border-gray-100">
+                        <p class="text-[9px] font-bold text-gray-500 mb-0.5">ติดต่อ:</p>
+                        <p class="text-xs font-bold text-gray-800 break-all">${showContact ? post.contact : '*** ปิดบังข้อมูล ***'}</p>
                     </div>
-                    
                     ${actionButton}
                 </div>
             </div>
@@ -277,114 +268,98 @@ function renderFeed() {
 }
 
 // ==========================================
-// ACTIONS (Reserve, Complete, Delete)
+// ACTIONS
 // ==========================================
 function reserveItem(id) {
-    if (!currentUser) return alert("ล็อกอินก่อนจองนะครับ!");
-    const p = posts.find(x => x.id === id);
-    
-    if (confirm(`ยืนยันการรับ "${p.name}" ใช่ไหม?\n\n📌 สิ่งที่ต้องทำต่อ: คุณต้องทักไปหาเจ้าของผ่านช่องทางที่เขาระบุไว้เพื่อนัดรับของนะครับ`)) {
+    if (confirm("ยืนยันรับของชิ้นนี้? กรุณาติดต่อผู้ให้ตามข้อมูลที่ระบุไว้ด้วยนะครับ")) {
+        let p = posts.find(x => x.id === id);
         p.status = 'reserved';
         p.reservedByEmail = currentUser.email;
         p.reservedByName = currentUser.name;
         saveData();
         renderFeed();
-        alert(`🎉 จองสำเร็จ! รีบติดต่อไปที่: ${p.contact}`);
     }
 }
 
 function completeOrder(id) {
-    if (confirm("ส่งมอบของให้เพื่อนเรียบร้อยแล้วใช่ไหม? (เมื่อยืนยันแล้วจะแก้ไขไม่ได้)")) {
-        const p = posts.find(x => x.id === id);
+    if (confirm("ยืนยันว่าส่งมอบสิ่งของเรียบร้อยแล้ว?")) {
+        let p = posts.find(x => x.id === id);
         p.status = 'completed';
-        p.completedTime = Date.now();
         saveData();
         renderFeed();
-        
-        // ถ้ากดจากหน้าประวัติ ให้รีเฟรชหน้าประวัติด้วย
-        if(document.getElementById('modal-history').style.display === 'flex') {
-            switchHistoryTab('give');
-        }
+        if(document.getElementById('modal-history').classList.contains('active')) switchHistoryTab('give');
     }
 }
 
 function deletePost(id) {
-    if (confirm("แน่ใจนะว่าต้องการลบโพสต์นี้ทิ้ง?")) {
+    if (confirm("ต้องการลบโพสต์นี้ใช่ไหม?")) {
         posts = posts.filter(x => x.id !== id);
         saveData();
         renderFeed();
-        
-        if(document.getElementById('modal-history').style.display === 'flex') {
-            switchHistoryTab('give');
-        }
+        if(document.getElementById('modal-history').classList.contains('active')) switchHistoryTab('give');
     }
 }
 
+function saveData() { localStorage.setItem('ntun_posts_data', JSON.stringify(posts)); }
+
 // ==========================================
-// HISTORY SYSTEM
+// HISTORY TAB
 // ==========================================
 function switchHistoryTab(tab) {
-    const tabGive = document.getElementById('tab-give');
-    const tabTake = document.getElementById('tab-take');
     const list = document.getElementById('history-list');
+    document.getElementById('tab-give').className = tab === 'give' ? "pb-2 text-indigo-600 font-bold border-b-2 border-indigo-600 text-sm btn-press" : "pb-2 text-gray-500 font-bold border-b-2 border-transparent text-sm btn-press";
+    document.getElementById('tab-take').className = tab === 'take' ? "pb-2 text-indigo-600 font-bold border-b-2 border-indigo-600 text-sm btn-press" : "pb-2 text-gray-500 font-bold border-b-2 border-transparent text-sm btn-press";
     
-    let targetPosts = [];
+    let target = tab === 'give' ? posts.filter(p => p.ownerEmail === currentUser.email) : posts.filter(p => p.reservedByEmail === currentUser.email);
 
-    if (tab === 'give') {
-        tabGive.className = "pb-3 text-indigo-600 font-bold border-b-2 border-indigo-600 text-sm md:text-base btn-press";
-        tabTake.className = "pb-3 text-gray-400 font-bold border-b-2 border-transparent text-sm md:text-base btn-press";
-        targetPosts = posts.filter(p => p.ownerEmail === currentUser.email);
-    } else {
-        tabTake.className = "pb-3 text-indigo-600 font-bold border-b-2 border-indigo-600 text-sm md:text-base btn-press";
-        tabGive.className = "pb-3 text-gray-400 font-bold border-b-2 border-transparent text-sm md:text-base btn-press";
-        targetPosts = posts.filter(p => p.reservedByEmail === currentUser.email);
-    }
-
-    if (targetPosts.length === 0) {
-        list.innerHTML = `<div class="text-center py-12 text-gray-400 text-sm bg-gray-50 rounded-2xl border border-dashed border-gray-200">ยังไม่มีประวัติในหน้านี้ครับ</div>`;
+    if (target.length === 0) {
+        list.innerHTML = `<div class="text-center py-6 text-sm text-gray-400">ไม่มีข้อมูล</div>`;
         return;
     }
 
-    list.innerHTML = targetPosts.map((p, idx) => {
-        let statusText = p.status === 'available' ? '✨ ว่าง' : (p.status === 'reserved' ? '⏳ รอส่งมอบ' : '✅ จบงาน');
-        let statusColor = p.status === 'available' ? 'text-indigo-500' : (p.status === 'reserved' ? 'text-amber-500' : 'text-emerald-500');
-        
-        let action = "";
-        if (tab === 'give' && p.status === 'reserved') {
-            action = `<button onclick="completeOrder(${p.id})" class="text-xs bg-emerald-500 text-white px-3 py-2 rounded-lg font-bold btn-press shadow-sm">ยืนยันว่าส่งแล้ว</button>`;
-        } else if (tab === 'give' && p.status !== 'completed') {
-            action = `<button onclick="deletePost(${p.id})" class="text-xs bg-rose-50 text-rose-500 px-3 py-2 rounded-lg font-bold btn-press">ลบทิ้ง</button>`;
-        }
-
+    list.innerHTML = target.map(p => {
+        let status = p.status === 'available' ? 'ว่าง' : (p.status === 'reserved' ? 'รอส่งมอบ' : 'จบงาน');
+        let color = p.status === 'available' ? 'text-indigo-500' : (p.status === 'reserved' ? 'text-amber-500' : 'text-gray-400');
         return `
-            <div class="flex items-center gap-4 bg-gray-50/80 p-3 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow fade-up" style="animation-delay: ${idx * 0.05}s">
-                ${p.image ? `<img src="${p.image}" class="w-16 h-16 rounded-xl object-cover shrink-0">` : `<div class="w-16 h-16 rounded-xl bg-gray-200 shrink-0"></div>`}
+            <div class="flex items-center gap-3 bg-gray-50 p-2 rounded-xl border border-gray-100">
+                ${p.image ? `<img src="${p.image}" class="w-12 h-12 rounded-lg object-cover">` : `<div class="w-12 h-12 bg-gray-200 rounded-lg"></div>`}
                 <div class="flex-1 overflow-hidden">
-                    <h4 class="font-bold text-sm text-gray-800 truncate leading-tight">${p.name}</h4>
-                    <p class="text-[11px] font-bold mt-1 ${statusColor}">สถานะ: ${statusText}</p>
-                    ${p.status === 'reserved' ? `<p class="text-[10px] text-gray-500 truncate mt-0.5">${tab === 'give' ? 'จองโดย: ' + p.reservedByName : 'ติดต่อเจ้าของ: ' + p.contact}</p>` : ''}
+                    <h4 class="font-bold text-xs truncate">${p.name}</h4>
+                    <p class="text-[10px] ${color}">สถานะ: ${status}</p>
                 </div>
-                <div>${action}</div>
+                ${(tab === 'give' && p.status === 'reserved') ? `<button onclick="completeOrder(${p.id})" class="text-[10px] bg-emerald-500 text-white px-2 py-1 rounded font-bold">ส่งแล้ว</button>` : ''}
             </div>
         `;
     }).join('');
 }
 
 // ==========================================
-// UTILS
+// GUIDE SLIDER SYSTEM
 // ==========================================
-function saveData() { localStorage.setItem('ntun_system_posts', JSON.stringify(posts)); }
-
-function timeAgo(timestamp) {
-    const mins = Math.floor((Date.now() - timestamp) / 60000);
-    if (mins >= 1440) return `${Math.floor(mins / 1440)} วันที่แล้ว`;
-    if (mins >= 60) return `${Math.floor(mins / 60)} ชม. ที่แล้ว`;
-    return mins > 0 ? `${mins} นาทีที่แล้ว` : "เมื่อสักครู่";
+function switchGuideTab(mode) {
+    currentGuideMode = mode;
+    currentSlideIdx = 0;
+    
+    document.getElementById('gtab-giver').className = mode === 'giver' ? "pb-2 text-indigo-600 font-bold border-b-2 border-indigo-600 text-sm btn-press" : "pb-2 text-gray-500 font-bold border-b-2 border-transparent text-sm btn-press";
+    document.getElementById('gtab-taker').className = mode === 'taker' ? "pb-2 text-indigo-600 font-bold border-b-2 border-indigo-600 text-sm btn-press" : "pb-2 text-gray-500 font-bold border-b-2 border-transparent text-sm btn-press";
+    
+    updateSliderUI();
 }
 
-function cleanUpOldPosts() {
-    // ลบโพสต์ที่สถานะ completed และเวลาผ่านไปเกิน 2 วัน (48 ชั่วโมง = 172800000 ms)
-    const oldLength = posts.length;
-    posts = posts.filter(p => !(p.status === 'completed' && p.completedTime && (Date.now() - p.completedTime > 172800000)));
-    if (posts.length !== oldLength) saveData();
+function updateSliderUI() {
+    const images = guideData[currentGuideMode];
+    document.getElementById('guide-slider-img').src = images[currentSlideIdx];
+    document.getElementById('slide-counter').innerText = `${currentSlideIdx + 1} / ${images.length}`;
+}
+
+function nextSlide() {
+    const images = guideData[currentGuideMode];
+    currentSlideIdx = (currentSlideIdx + 1) % images.length;
+    updateSliderUI();
+}
+
+function prevSlide() {
+    const images = guideData[currentGuideMode];
+    currentSlideIdx = (currentSlideIdx - 1 + images.length) % images.length;
+    updateSliderUI();
 }
