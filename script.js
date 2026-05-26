@@ -1,12 +1,11 @@
 // --- Configuration ---
 const MASTER_ADMIN = "aceaa372@gmail.com";
 const SCHOOL_DOMAIN = "ntun.ac.th";
-const SESSION_LIMIT = 24 * 60 * 60 * 1000;
+const SESSION_LIMIT = 24 * 60 * 60 * 1000; // 24 ชม.
 
-// คำต้องห้าม
 const FORBIDDEN = ["ยาบ้า", "กัญชา", "เหล้า", "เบียร์", "บุหรี่", "พอต", "vape", "กระท่อม", "เพศ", "sex", "ปืน", "มีด", "อาวุธ", "หวย", "การพนัน", "18+"];
 
-// 🧠 ระบบ AI Validator (ดิกชันนารีตรวจสอบความสอดคล้องของหมวดหมู่)
+// 🧠 ระบบ AI Validator (ดิกชันนารีเช็กหมวดหมู่อัจฉริยะ)
 const CATEGORY_KEYWORDS = {
     '📚': ['หนังสือ', 'ชีท', 'สรุป', 'สอบ', 'เรียน', 'สมุด', 'คณิต', 'วิทย์', 'ภาษา', 'อ่าน', 'ม.4', 'ม.5', 'ม.6'],
     '👕': ['เสื้อ', 'กางเกง', 'กระโปรง', 'พละ', 'ไซส์', 'size', 'ชุด', 'รองเท้า', 'เข็มขัด', 'สภาพ'],
@@ -22,14 +21,15 @@ let currentUser = null;
 let selectedImgBase64 = null;
 let currentCatFilter = 'ทั้งหมด';
 
-// ตรวจสอบ Session 24 ชม.
+// ตรวจสอบ Session ทันทีที่เข้าเว็บ
 window.onload = () => {
     const storedUser = localStorage.getItem('ntun_user_session');
     const storedTime = localStorage.getItem('ntun_user_time');
     
     if (storedUser && storedTime && (Date.now() - parseInt(storedTime) < SESSION_LIMIT)) {
         currentUser = JSON.parse(storedUser);
-        renderAuthUI(); unlock();
+        renderAuthUI(); 
+        unlock();
     } else {
         localStorage.removeItem('ntun_user_session');
     }
@@ -44,31 +44,47 @@ function handleSignIn(response) {
             currentUser = payload;
             localStorage.setItem('ntun_user_session', JSON.stringify(payload));
             localStorage.setItem('ntun_user_time', Date.now().toString());
-            renderAuthUI(); unlock();
-        } else { alert(`❌ ระบบนี้อนุญาตเฉพาะนักเรียน @${SCHOOL_DOMAIN} เท่านั้น`); }
+            renderAuthUI(); 
+            unlock();
+        } else { 
+            alert(`❌ ระบบนี้อนุญาตเฉพาะนักเรียน @${SCHOOL_DOMAIN} เท่านั้น`); 
+        }
     } catch (err) { alert("Login Error"); }
 }
 
 function renderAuthUI() {
+    // อัปเดตฝั่งโปรไฟล์ขวาบน
     document.getElementById('auth-section').innerHTML = `
         <div class="flex items-center gap-3 bg-white/60 p-1.5 pr-4 rounded-full border border-gray-200">
             <img src="${currentUser.picture}" class="w-9 h-9 rounded-full" referrerpolicy="no-referrer">
             <div class="hidden sm:block"><p class="text-[11px] font-bold text-gray-800 leading-none">${currentUser.name}</p></div>
-            <button onclick="logout()" class="ml-1 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 hover:bg-rose-500 hover:text-white transition text-[9px]">✕</button>
+            <button onclick="logout()" class="ml-1 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 hover:bg-rose-500 hover:text-white transition text-[9px]" title="ออกจากระบบ">✕</button>
         </div>`;
+    
+    // อัปเดตเมนูตรงกลาง (ซ่อนหน้าแรก เอาเมนูแอปใส่แทน)
+    document.getElementById('nav-links').innerHTML = `
+        <div class="flex items-center bg-white/50 p-1.5 rounded-full border border-gray-200/80 backdrop-blur-xl shadow-sm shrink-0 gap-1">
+            <a href="#app-content" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">🎁 ฝาก & รับของ</a>
+            <button onclick="toggleHistory()" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">📁 ประวัติ</button>
+            <a href="guide.html" class="px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-gray-700 hover:bg-white hover:shadow-sm hover:text-black transition-all">📖 คู่มือ</a>
+        </div>
+    `;
 }
 
 function logout() {
-    localStorage.removeItem('ntun_user_session'); localStorage.removeItem('ntun_user_time'); location.reload();
+    localStorage.removeItem('ntun_user_session'); 
+    localStorage.removeItem('ntun_user_time'); 
+    location.reload(); // รีโหลดหน้าเพื่อกลับไปหน้าฮีโร่
 }
 
 function unlock() {
     document.getElementById('login-placeholder').style.display = 'none';
     document.getElementById('app-content').style.display = 'block';
-    autoCleanUp(); renderFeed();
+    autoCleanUp(); 
+    renderFeed();
 }
 
-// ลบออโต้ 2 วัน
+// ลบอัตโนมัติเมื่อครบ 2 วัน
 function autoCleanUp() {
     const originalCount = posts.length;
     posts = posts.filter(p => !(p.status === 'completed' && p.completedAt && (Date.now() - p.completedAt) > 172800000));
@@ -109,13 +125,13 @@ function removeSelectedImg() {
     document.getElementById('remove-img').classList.add('hidden');
 }
 
-// 🎯 ระบบกดดูหมวดหมู่ (Filter)
+// 🎯 ระบบกรองหมวดหมู่แบบ Exact Match
 function setFilter(cat) {
     currentCatFilter = cat;
     const btns = document.getElementById('category-filters').children;
     for(let b of btns) {
-        // อัปเดตสีปุ่มที่ถูกกด
-        b.className = (cat === 'ทั้งหมด' && b.innerText === 'รวมทั้งหมด') || b.innerText.includes(cat) 
+        // เช็กคำว่าตรงกันเป๊ะไหม
+        b.className = (b.innerText === cat || (cat === 'ทั้งหมด' && b.innerText === 'รวมทั้งหมด'))
             ? 'cat-btn active' : 'cat-btn';
     }
     renderFeed();
@@ -131,32 +147,28 @@ function handlePost(e) {
     const contact = document.getElementById('itemContact').value;
     const fullText = (name + " " + detail).toLowerCase();
 
-    // 1. เช็กคำหยาบ/ผิดกฎหมาย
+    // 1. เช็กคำผิดกฎหมาย
     if (FORBIDDEN.some(w => fullText.includes(w))) {
         return alert("⚠️ ตรวจพบคำไม่เหมาะสม หรือสินค้าผิดกฎหมาย กรุณาแก้ไขข้อความครับ");
     }
 
-    // 2. เช็กการอัปโหลดรูปภาพ
+    // 2. เช็กรูปภาพ
     if (!selectedImgBase64) {
-        if (!confirm("🔍 ระบบแนะนำ: คุณยังไม่ได้ใส่รูปภาพ! การมีรูปภาพช่วยให้เพื่อนตัดสินใจรับของได้เร็วขึ้น\n\nยืนยันที่จะโพสต์โดยไม่มีรูปหรือไม่?")) {
-            return;
-        }
+        if (!confirm("🔍 ระบบแนะนำ: คุณยังไม่ได้ใส่รูปภาพ!\nยืนยันที่จะโพสต์โดยไม่มีรูปหรือไม่?")) return;
     }
 
-    // 3. Smart Text Validator (ตรวจความสอดคล้องของหมวดหมู่)
-    const emojiPrefix = cat.substring(0, 2).trim(); // ดึงอิโมจิออกมาเช็ก
+    // 3. AI Text Validator (เช็กอิโมจิตัวแรกของหมวดหมู่)
+    const emojiPrefix = cat.substring(0, 2).trim(); 
     if (CATEGORY_KEYWORDS[emojiPrefix]) {
         const hasKeyword = CATEGORY_KEYWORDS[emojiPrefix].some(kw => fullText.includes(kw));
         if (!hasKeyword) {
-            if (!confirm(`🧠 AI ตรวจพบ: ข้อความของคุณอาจไม่ตรงกับหมวดหมู่ "${cat}"\n\nต้องการโพสต์ในหมวดหมู่นี้ต่อไปหรือไม่?`)) {
-                return;
-            }
+            if (!confirm(`🧠 AI ตรวจพบ: ข้อความของคุณอาจไม่ตรงกับหมวดหมู่ "${cat}"\nต้องการโพสต์ต่อไปหรือไม่?`)) return;
         }
     }
 
-    // ทำ Effect กำลังโพสต์
+    // ทำ Effect
     const originalText = btn.innerHTML;
-    btn.innerHTML = `<span class="animate-spin text-xl">⏳</span> กำลังส่งเข้าระบบ...`;
+    btn.innerHTML = `<span class="animate-spin text-xl">⏳</span> กำลังส่ง...`;
     btn.disabled = true;
 
     setTimeout(() => {
@@ -168,21 +180,20 @@ function handlePost(e) {
         });
         saveData(); setFilter('ทั้งหมด'); e.target.reset(); removeSelectedImg();
         btn.innerHTML = originalText; btn.disabled = false;
-        alert("✅ ประกาศของคุณถูกลงกระดานเรียบร้อยแล้ว!");
-    }, 800);
+    }, 600);
 }
 
 function renderFeed() {
     const feed = document.getElementById('feed');
     let displayPosts = posts;
     
-    // กรองหมวดหมู่ (Filter) ให้ตรงกับปุ่มที่กด
+    // กรองแบบ Exact Match ให้ตรงกับหมวดหมู่
     if (currentCatFilter !== 'ทั้งหมด') {
-        displayPosts = displayPosts.filter(p => p.cat.startsWith(currentCatFilter));
+        displayPosts = displayPosts.filter(p => p.cat === currentCatFilter);
     }
 
     if (displayPosts.length === 0) {
-        feed.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 bg-white/40 rounded-[32px] border-2 border-dashed border-gray-200">ยังไม่มีสิ่งของในหมวดหมู่นี้</div>`;
+        feed.innerHTML = `<div class="col-span-full py-24 text-center text-gray-400 bg-white/50 rounded-[28px] border-2 border-dashed border-gray-200">ยังไม่มีสิ่งของในหมวดหมู่นี้</div>`;
         return;
     }
 
@@ -191,14 +202,14 @@ function renderFeed() {
         let badge = `<span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">ว่าง</span>`;
         let btn = isOwner 
             ? `<span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg">ของของคุณ</span>`
-            : `<button onclick="reserve(${post.id})" class="bg-black text-white px-5 py-2 rounded-xl text-xs font-bold btn-ios shadow-md hover:shadow-lg">รับของ</button>`;
+            : `<button onclick="reserve(${post.id})" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-ios shadow-md hover:shadow-lg">รับของ</button>`;
         
-        let cardClass = "ios-card overflow-hidden flex flex-col";
+        let cardClass = "ios-card overflow-hidden flex flex-col h-full";
 
         if (post.status === 'reserved') {
             badge = `<span class="bg-amber-50 text-amber-600 px-3 py-1 rounded-full text-[10px] font-bold">จองแล้วโดย ${post.reservedBy}</span>`;
             btn = isOwner 
-                ? `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold btn-ios animate-pulse">ยืนยันว่าส่งแล้ว</button>` 
+                ? `<button onclick="complete(${post.id})" class="bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold btn-ios animate-pulse">ยืนยันว่าส่งแล้ว</button>` 
                 : `<span class="text-[10px] text-amber-500 font-bold bg-amber-50 px-3 py-1.5 rounded-lg">ไม่ว่าง</span>`;
             cardClass += " opacity-95 border-amber-100";
         } else if (post.status === 'completed') {
@@ -207,18 +218,22 @@ function renderFeed() {
             cardClass += " grayscale opacity-60 scale-[0.98]";
         }
 
+        // ดีไซน์การ์ดให้แน่นและเต็มตา
         return `
         <div class="${cardClass}">
-            ${post.image ? `<div class="w-full h-48 bg-gray-100 relative"><img src="${post.image}" class="w-full h-full object-cover"></div>` : ''}
-            <div class="p-6 flex flex-col flex-1">
-                <div class="flex justify-between items-start mb-3"><span class="text-[10px] font-bold text-gray-500">${post.cat}</span>${badge}</div>
-                <h4 class="text-xl font-bold mb-1 leading-tight text-gray-900">${post.name}</h4>
-                <p class="text-[10px] font-medium text-indigo-400 mb-3">${timeAgo(post.timestamp)}</p>
-                <p class="text-sm text-gray-600 mb-4 line-clamp-2">${post.detail}</p>
-                <div class="bg-gray-50 rounded-xl p-3 mb-4 border border-gray-100 text-[11px]"><span class="font-bold text-gray-400 uppercase tracking-wide">📞 ช่องทางติดต่อ:</span> <span class="font-semibold text-gray-800 block mt-1">${post.contact}</span></div>
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
+            ${post.image ? `<div class="w-full h-48 bg-gray-100 relative shrink-0"><img src="${post.image}" class="w-full h-full object-cover"></div>` : ''}
+            <div class="p-5 flex flex-col flex-1">
+                <div class="flex justify-between items-start mb-2"><span class="text-[10px] font-bold text-gray-500 truncate mr-2">${post.cat}</span>${badge}</div>
+                <h4 class="text-xl font-bold mb-1 leading-tight text-gray-900 line-clamp-1">${post.name}</h4>
+                <p class="text-[10px] font-semibold text-indigo-400 mb-3">${timeAgo(post.timestamp)}</p>
+                <p class="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">${post.detail}</p>
+                <div class="bg-gray-50 rounded-xl p-3 mb-4 border border-gray-100 text-[11px] mt-auto">
+                    <span class="font-bold text-gray-400 uppercase tracking-wide text-[9px]">📞 ช่องทางติดต่อ:</span> 
+                    <span class="font-semibold text-gray-800 block mt-1 truncate">${post.contact}</span>
+                </div>
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100/80">
                     <div class="flex items-center gap-2"><img src="${post.avatar}" class="w-7 h-7 rounded-full border border-gray-200"><span class="text-[11px] font-bold text-gray-800">${post.user}</span></div>
-                    <div class="flex gap-2">${btn} ${isOwner ? `<button onclick="del(${post.id})" class="text-rose-400 text-sm hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors">🗑️</button>` : ''}</div>
+                    <div class="flex items-center gap-2">${btn} ${isOwner ? `<button onclick="del(${post.id})" class="text-rose-400 text-sm hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors">🗑️</button>` : ''}</div>
                 </div>
             </div>
         </div>`;
@@ -257,16 +272,16 @@ function showHistoryTab(tab) {
     const list = tab === 'given' ? posts.filter(p => p.email === currentUser.email) : posts.filter(p => p.reservedBy === currentUser.name);
     const content = document.getElementById('history-content');
     
-    if(list.length === 0) return content.innerHTML = `<div class="py-10 text-center text-gray-400 text-sm">ไม่มีประวัติในหมวดหมู่นี้</div>`;
+    if(list.length === 0) return content.innerHTML = `<div class="py-10 text-center text-gray-400 text-sm bg-gray-50 rounded-2xl">ไม่มีประวัติในหมวดหมู่นี้</div>`;
 
     content.innerHTML = list.map(p => `
-        <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-            ${p.image ? `<img src="${p.image}" class="w-16 h-16 rounded-xl object-cover">` : `<div class="w-16 h-16 rounded-xl bg-gray-200"></div>`}
-            <div class="flex-1">
-                <h4 class="font-bold text-sm leading-tight">${p.name}</h4>
-                <p class="text-[10px] text-gray-400 mt-1">สถานะ: ${p.status === 'completed' ? '✅ จบงานแล้ว' : (p.status === 'reserved' ? '⏳ กำลังรอส่งมอบ' : '✨ ว่าง')}</p>
+        <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow">
+            ${p.image ? `<img src="${p.image}" class="w-16 h-16 rounded-xl object-cover shrink-0">` : `<div class="w-16 h-16 rounded-xl bg-gray-200 shrink-0"></div>`}
+            <div class="flex-1 overflow-hidden">
+                <h4 class="font-bold text-sm leading-tight truncate">${p.name}</h4>
+                <p class="text-[11px] text-gray-500 mt-1">สถานะ: ${p.status === 'completed' ? '✅ จบงานแล้ว' : (p.status === 'reserved' ? '⏳ กำลังรอส่งมอบ' : '✨ ว่าง')}</p>
             </div>
-            ${p.status === 'reserved' && tab === 'given' ? `<button onclick="complete(${p.id}); toggleHistory();" class="text-xs bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-bold">ยืนยันส่ง</button>` : ''}
+            ${p.status === 'reserved' && tab === 'given' ? `<button onclick="complete(${p.id}); toggleHistory();" class="text-xs bg-emerald-500 text-white px-3 py-2 rounded-xl font-bold shadow-sm hover:shadow-md">ยืนยันส่ง</button>` : ''}
         </div>
     `).join('');
 }
