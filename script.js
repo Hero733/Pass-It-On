@@ -14,10 +14,14 @@ const guideData = {
 let currentGuideMode = 'giver';
 let currentSlideIdx = 0;
 
+// ==========================================
+// 🛠️ THE MOJIBAKE FIXER (ตัวแก้ภาษาต่างดาว)
+// ==========================================
 function fixMojibake(str) {
     if (!str) return str;
     if (str.includes('à¸') || str.includes('à¹')) {
-        try { return decodeURIComponent(escape(str)); } catch (e) { return str; }
+        try { return decodeURIComponent(escape(str)); } 
+        catch (e) { return str; }
     }
     return str;
 }
@@ -28,8 +32,11 @@ function parseJwt(token) {
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const binaryString = window.atob(base64);
         const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-        return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        const jsonPayload = new TextDecoder('utf-8').decode(bytes);
+        return JSON.parse(jsonPayload);
     } catch (e) {
         console.error("JWT Parse Error:", e);
         return null;
@@ -51,6 +58,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// 🛠️ ฟังก์ชันสลับคลาสของปุ่ม Nav ให้ก้อนสีดำขยับ
+function updateNavButtons(targetPage) {
+    const btnLanding = document.getElementById('nav-btn-landing');
+    const btnApp = document.getElementById('nav-btn-app');
+    
+    if (!btnLanding || !btnApp) return;
+
+    const activeClass = "px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 btn-press bg-[#1d1d1f] text-white shadow-md";
+    const inactiveClass = "px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 btn-press text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/5";
+
+    if (targetPage === 'landing') {
+        btnLanding.className = activeClass;
+        btnApp.className = inactiveClass;
+    } else if (targetPage === 'app') {
+        btnLanding.className = inactiveClass;
+        btnApp.className = activeClass;
+    }
+}
+
 function switchPage(targetPage) {
     if (currentPage === targetPage && currentUser) return;
     
@@ -59,6 +85,9 @@ function switchPage(targetPage) {
     
     if (currentPage === 'landing') landing.classList.add('page-leave');
     if (currentPage === 'app') app.classList.add('page-leave');
+
+    // 🛠️ อัปเดตก้อนสีดำทันทีที่กดสลับหน้า
+    updateNavButtons(targetPage);
 
     setTimeout(() => {
         landing.classList.remove('page-leave', 'page-enter');
@@ -87,7 +116,7 @@ function handleSignIn(response) {
 
     if (domain === ALLOWED_DOMAIN || email === ADMIN_EMAIL) {
         currentUser = { 
-            name: fixMojibake(payload.name),
+            name: fixMojibake(payload.name), 
             email: email, 
             picture: payload.picture,
             isAdmin: (email === ADMIN_EMAIL) 
@@ -108,7 +137,6 @@ function logout() {
     }
 }
 
-// 🌑 อัปเกรด Profile UI ให้เข้ากับ Navbar สีดำ
 function renderAuthUI() {
     document.getElementById('g_id_onload').remove();
     document.querySelector('.g_id_signin').style.display = 'none';
@@ -120,12 +148,10 @@ function renderAuthUI() {
     document.getElementById('landing-guide-btn').style.display = 'none'; 
 
     const displayName = currentUser.isAdmin ? 'Admin' : currentUser.name.split(' ')[0];
-    
-    // เปลี่ยนจาก bg-white เป็นแบบโปร่งแสงสีขาวสำหรับ Navbar สีดำ
     document.getElementById('auth-section').innerHTML = `
-        <div onclick="logout()" class="flex items-center gap-2 bg-white/10 backdrop-blur-md p-1 pr-3 rounded-full border border-white/20 cursor-pointer hover:bg-white/20 transition-all btn-press shadow-inner">
-            <img src="${currentUser.picture}" class="w-7 h-7 rounded-full border border-white/30" referrerpolicy="no-referrer">
-            <span class="text-xs font-medium ${currentUser.isAdmin ? 'text-rose-400' : 'text-white'} truncate max-w-[80px] md:max-w-[120px]">${displayName}</span>
+        <div onclick="logout()" class="flex items-center gap-2 bg-white/50 backdrop-blur-md p-1 pr-3 rounded-full border border-gray-200 cursor-pointer hover:bg-black/5 transition-all btn-press">
+            <img src="${currentUser.picture}" class="w-7 h-7 rounded-full" referrerpolicy="no-referrer">
+            <span class="text-xs font-semibold ${currentUser.isAdmin ? 'text-rose-600' : 'text-[#1d1d1f]'} truncate max-w-[80px] md:max-w-[120px]">${displayName}</span>
         </div>
     `;
 }
@@ -147,7 +173,7 @@ function closeModal(id) {
 function switchGuideTab(mode) {
     currentGuideMode = mode;
     currentSlideIdx = 0;
-    const activeClass = "pb-2 text-[#1d1d1f] font-bold border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors";
+    const activeClass = "pb-2 text-[#1d1d1f] font-medium border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors";
     const inactiveClass = "pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors";
     document.getElementById('gtab-giver').className = (mode === 'giver') ? activeClass : inactiveClass;
     document.getElementById('gtab-taker').className = (mode === 'taker') ? activeClass : inactiveClass;
@@ -234,7 +260,7 @@ function renderFeed() {
     let displayPosts = currentFilter === 'ทั้งหมด' ? posts : posts.filter(p => p.cat === currentFilter);
 
     if (displayPosts.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-16 text-center bg-white/50 rounded-2xl border border-gray-100"><p class="font-medium text-lg text-[#86868b]">ยังไม่มีของในหมวดหมู่นี้</p></div>`;
+        container.innerHTML = `<div class="col-span-full py-16 text-center"><p class="font-medium text-lg text-[#86868b]">ยังไม่มีของในหมวดหมู่นี้</p></div>`;
         return;
     }
 
@@ -250,49 +276,46 @@ function renderFeed() {
 
         if (post.status === 'completed') {
             badge = `<span class="text-[10px] font-bold text-[#86868b] bg-gray-100 px-2.5 py-1 rounded-full">จบงาน</span>`;
-            actionButton = `<span class="text-xs font-semibold text-[#86868b] block text-center py-3">ส่งมอบสำเร็จแล้ว</span>`;
-            cardClass = "opacity-60 grayscale-[40%]";
+            actionButton = `<span class="text-xs font-semibold text-[#86868b] block text-center py-2.5">ส่งมอบสำเร็จแล้ว</span>`;
+            cardClass = "opacity-50 grayscale-[50%]";
         } else if (post.status === 'reserved') {
-            badge = `<span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full shadow-sm">รอส่งมอบ</span>`;
+            badge = `<span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-full">รอส่งมอบ</span>`;
             if (isOwner) {
-                actionButton = `<button onclick="completeOrder(${post.id})" class="w-full bg-[#1d1d1f] text-white py-3 rounded-xl font-medium btn-press hover:bg-black hover:shadow-lg transition-all">ยืนยันการส่งมอบ</button>`;
+                actionButton = `<button onclick="completeOrder(${post.id})" class="w-full bg-[#1d1d1f] text-white py-2.5 rounded-xl font-medium btn-press">ยืนยันการส่งมอบ</button>`;
             } else if (isReservedByMe) {
-                actionButton = `<span class="text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 block text-center py-3 rounded-xl shadow-sm">คุณจองไว้ (ทักนัดรับเลย)</span>`;
+                actionButton = `<span class="text-xs font-medium text-[#1d1d1f] bg-gray-50 border border-gray-200 block text-center py-2.5 rounded-xl">คุณจองไว้ (ทักนัดรับเลย)</span>`;
             } else {
-                actionButton = `<button disabled class="w-full bg-gray-100 text-[#86868b] py-3 rounded-xl font-medium cursor-not-allowed">มีคนจองแล้ว</button>`;
+                actionButton = `<button disabled class="w-full bg-gray-100 text-[#86868b] py-2.5 rounded-xl font-medium cursor-not-allowed">มีคนจองแล้ว</button>`;
             }
         } else {
-            badge = `<span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full shadow-sm">ว่าง</span>`;
+            badge = `<span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full">ว่าง</span>`;
             if (isOwner) {
-                actionButton = `<span class="text-xs font-medium text-[#86868b] bg-gray-50 block text-center py-3 rounded-xl border border-gray-100">ของของคุณเอง</span>`;
+                actionButton = `<span class="text-xs font-medium text-[#86868b] bg-gray-50 block text-center py-2.5 rounded-xl border border-gray-100">ของของคุณเอง</span>`;
             } else {
-                actionButton = `<button onclick="reserveItem(${post.id})" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-medium hover:shadow-lg hover:-translate-y-0.5 transition-all btn-press">รับของชิ้นนี้</button>`;
+                actionButton = `<button onclick="reserveItem(${post.id})" class="w-full bg-[#1d1d1f] text-white py-2.5 rounded-xl font-medium hover:bg-black transition-all btn-press">รับของชิ้นนี้</button>`;
             }
         }
 
-        const delBtn = (isAdmin || isOwner) ? `<button onclick="deletePost(${post.id})" class="absolute top-3 right-3 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-rose-500 font-bold z-10 btn-press transition-colors backdrop-blur-md text-sm shadow-md">✕</button>` : '';
+        const delBtn = (isAdmin || isOwner) ? `<button onclick="deletePost(${post.id})" class="absolute top-3 right-3 w-7 h-7 bg-black/40 text-white rounded-full flex items-center justify-center hover:bg-rose-500 font-bold z-10 btn-press transition-colors backdrop-blur-md text-xs">✕</button>` : '';
 
         return `
             <div class="glass-card flex flex-col relative ${cardClass}">
                 ${delBtn}
-                ${post.image ? `<img src="${post.image}" class="w-full h-56 object-cover rounded-t-[24px] shrink-0 border-b border-gray-100">` : `<div class="w-full h-56 bg-gray-50 flex items-center justify-center text-[#86868b] text-xs font-bold rounded-t-[24px] shrink-0 border-b border-gray-100">NO IMAGE</div>`}
+                ${post.image ? `<img src="${post.image}" class="w-full h-48 object-cover rounded-t-[24px] shrink-0">` : `<div class="w-full h-48 bg-gray-50 flex items-center justify-center text-[#86868b] text-xs font-bold rounded-t-[24px] shrink-0">NO IMAGE</div>`}
                 <div class="p-5 flex flex-col flex-1">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="text-[11px] font-bold text-[#86868b] bg-gray-100 px-2 py-0.5 rounded-md">${post.cat}</span>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold text-[#86868b]">${post.cat}</span>
                         ${badge}
                     </div>
-                    <h4 class="font-bold text-xl text-[#1d1d1f] line-clamp-1 mb-1">${post.name}</h4>
-                    ${post.desc ? `<p class="text-[13px] text-[#86868b] mb-4 line-clamp-2 leading-relaxed">${post.desc}</p>` : '<div class="mb-4"></div>'}
+                    <h4 class="font-bold text-lg text-[#1d1d1f] line-clamp-1 mb-1">${post.name}</h4>
+                    ${post.desc ? `<p class="text-xs text-[#86868b] mb-3 line-clamp-2">${post.desc}</p>` : ''}
                     
-                    <p class="text-[11px] text-[#86868b] font-medium mb-3 flex items-center gap-1">
-                        <span class="w-4 h-4 bg-gray-200 rounded-full inline-block flex items-center justify-center text-[8px]">👤</span>
-                        โดย ${displayOwnerName}
-                    </p>
+                    <p class="text-[11px] text-[#86868b] font-medium mb-3">โดย ${displayOwnerName}</p>
                     
-                    <div class="bg-gray-50/80 p-3.5 rounded-xl mb-4 mt-auto border border-gray-100 relative">
-                        ${!showContact ? '<div class="absolute inset-0 bg-white/80 backdrop-blur-[2px] flex items-center justify-center rounded-xl"><span class="text-[11px] font-bold text-[#86868b] flex items-center gap-1">🔒 สงวนสิทธิ์การติดต่อ</span></div>' : ''}
-                        <p class="text-[10px] font-bold text-[#86868b] mb-1 uppercase tracking-wider">ช่องทางติดต่อ</p>
-                        <p class="text-[13px] font-medium text-[#1d1d1f] break-all select-all">${post.contact}</p>
+                    <div class="bg-white/50 p-3 rounded-xl mb-4 mt-auto border border-gray-100 relative">
+                        ${!showContact ? '<div class="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-xl"><span class="text-[10px] font-bold text-[#86868b]">🔒 สงวนสิทธิ์</span></div>' : ''}
+                        <p class="text-[9px] font-bold text-[#86868b] mb-1">ติดต่อ</p>
+                        <p class="text-xs font-medium text-[#1d1d1f] break-all select-all">${post.contact}</p>
                     </div>
                     ${actionButton}
                 </div>
@@ -329,26 +352,33 @@ function saveData() { localStorage.setItem('ntun_system_db', JSON.stringify(post
 
 function switchHistoryTab(tab) {
     const list = document.getElementById('history-list');
-    document.getElementById('tab-give').className = (tab === 'give') ? "pb-2 text-[#1d1d1f] font-bold border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors" : "pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors";
-    document.getElementById('tab-take').className = (tab === 'take') ? "pb-2 text-[#1d1d1f] font-bold border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors" : "pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors";
+    document.getElementById('tab-give').className = (tab === 'give') ? "pb-2 text-[#1d1d1f] font-medium border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors" : "pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors";
+    document.getElementById('tab-take').className = (tab === 'take') ? "pb-2 text-[#1d1d1f] font-medium border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors" : "pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors";
     
-    let target = tab === 'give' ? posts.filter(p => p.ownerEmail === currentUser.email) : posts.filter(p => p.reservedByEmail === currentUser.email);
+    let display = [];
+    if (tab === 'give') {
+        display = posts.filter(p => p.ownerEmail === currentUser.email);
+    } else {
+        display = posts.filter(p => p.reservedByEmail === currentUser.email);
+    }
 
-    if (target.length === 0) return list.innerHTML = `<div class="text-center py-8 text-sm font-medium text-[#86868b] bg-gray-50 rounded-xl border border-gray-100">ไม่มีข้อมูล</div>`;
+    if(display.length === 0) {
+        list.innerHTML = `<div class="text-center py-8 text-[#86868b] text-sm font-medium">ยังไม่มีประวัติในส่วนนี้</div>`;
+        return;
+    }
 
-    list.innerHTML = target.map((p) => {
-        let status = p.status === 'available' ? 'ว่าง' : (p.status === 'reserved' ? 'รอส่ง' : 'จบงาน');
-        let color = p.status === 'available' ? 'text-indigo-600' : (p.status === 'reserved' ? 'text-amber-600' : 'text-[#86868b]');
-        let actionBtn = (tab === 'give' && p.status === 'reserved') ? `<button onclick="completeOrder(${p.id})" class="text-[10px] bg-[#1d1d1f] text-white px-3 py-1.5 rounded-lg font-medium btn-press hover:bg-black">ส่งแล้ว</button>` : '';
-
+    list.innerHTML = display.map(p => {
+        let statusColor = p.status === 'completed' ? 'text-[#86868b]' : (p.status === 'reserved' ? 'text-amber-600' : 'text-blue-600');
+        let statusText = p.status === 'completed' ? 'จบงาน' : (p.status === 'reserved' ? 'รอส่งมอบ' : 'ว่าง');
+        
         return `
-            <div class="flex items-center gap-4 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                ${p.image ? `<img src="${p.image}" class="w-14 h-14 rounded-xl object-cover shrink-0 border border-gray-100">` : `<div class="w-14 h-14 bg-gray-50 rounded-xl shrink-0 border border-gray-100 flex items-center justify-center text-[10px] text-gray-400">NO IMG</div>`}
-                <div class="flex-1 overflow-hidden">
+            <div class="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-4">
+                ${p.image ? `<img src="${p.image}" class="w-16 h-16 object-cover rounded-xl shrink-0">` : `<div class="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center text-[10px] text-[#86868b]">NO IMG</div>`}
+                <div class="flex-1 min-w-0">
                     <h4 class="font-bold text-sm text-[#1d1d1f] truncate">${p.name}</h4>
-                    <p class="text-[11px] font-bold mt-1 ${color} bg-${color.split('-')[1]}-50 inline-block px-2 py-0.5 rounded-md">${status}</p>
+                    <p class="text-xs ${statusColor} font-bold mt-1">สถานะ: ${statusText}</p>
                 </div>
-                ${actionBtn}
-            </div>`;
+            </div>
+        `;
     }).join('');
 }
