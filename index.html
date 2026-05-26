@@ -14,9 +14,9 @@
         /* Loader */
         #page-loader { position: fixed; inset: 0; background: #fbfbfd; z-index: 10000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
 
-        /* Background Blobs */
+        /* Background Blobs (Mesh Gradient) */
         .bg-blobs { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: -1; }
-        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; animation: float 10s infinite ease-in-out alternate; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: float 10s infinite ease-in-out alternate; }
         .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #e0e7ff; }
         .blob-2 { top: 20%; right: -10%; width: 40vw; height: 40vw; background: #f3e8ff; animation-delay: -3s; }
         .blob-3 { bottom: -20%; left: 20%; width: 60vw; height: 60vw; background: #fae8ff; animation-delay: -5s; }
@@ -24,10 +24,12 @@
         @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 50px) scale(1.1); } }
         @keyframes floatCat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* Glassmorphism */
-        .glass-nav { background: rgba(251, 251, 253, 0.7); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .glass-card { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 24px rgba(0,0,0,0.02); transition: all 0.3s ease; }
-        .glass-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.06); background: rgba(255, 255, 255, 0.8); }
+        /* 🌑 Dark Nav Glassmorphism (แถบเมนูสีดำ) */
+        .dark-glass-nav { background: rgba(29, 29, 31, 0.85); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+        
+        /* ⚪ Light Cards (หน้ากระดาน) */
+        .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid rgba(255,255,255,1); box-shadow: 0 8px 32px rgba(0,0,0,0.04); transition: all 0.3s ease; }
+        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); background: rgba(255, 255, 255, 0.9); }
 
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .page-enter { animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -37,12 +39,16 @@
         .btn-press:active { transform: scale(0.95); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); }
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(12px); }
         .modal-overlay.active { display: flex; animation: fadeInScale 0.3s ease-out forwards; }
         .modal-content { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.5); }
 
-        .cat-tab { padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: 500; background: rgba(255,255,255,0.5); color: #86868b; border: 1px solid rgba(0,0,0,0.05); transition: all 0.2s; white-space: nowrap; }
+        .cat-tab { padding: 8px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; background: rgba(255,255,255,0.6); color: #86868b; border: 1px solid rgba(0,0,0,0.03); transition: all 0.2s; white-space: nowrap; backdrop-filter: blur(10px); }
+        .cat-tab:hover { background: rgba(255,255,255,0.9); color: #1d1d1f; }
         .cat-tab.active { background: #1d1d1f; color: #fff; border-color: #1d1d1f; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        /* Invert Logo for Dark Nav */
+        .nav-logo { filter: brightness(0) invert(1); }
     </style>
 </head>
 <body class="hide-scroll">
@@ -55,38 +61,36 @@
         <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
     </div>
 
-    <nav class="sticky top-0 z-[1000] glass-nav px-4 md:px-8 py-3 flex justify-between items-center transition-all duration-300">
+    <nav class="sticky top-0 z-[1000] dark-glass-nav px-4 md:px-8 py-3 flex justify-between items-center transition-all duration-300">
         <div class="flex items-center gap-3">
-            <img src="photo/logo.png" alt="Logo" class="w-10 h-10 object-contain drop-shadow-sm" onerror="this.src='https://via.placeholder.com/40?text=P';">
-            <span class="text-xl font-bold tracking-tight hidden md:block text-[#1d1d1f]">Pass It On</span>
+            <img src="photo/logo.png" alt="Logo" class="w-8 h-8 object-contain drop-shadow-sm nav-logo" onerror="this.src='https://via.placeholder.com/40/000000/FFFFFF?text=P';">
+            <span class="text-xl font-bold tracking-tight hidden md:block text-white">Pass It On</span>
             <span id="admin-badge" class="hidden bg-rose-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide">Admin</span>
         </div>
 
         <div id="nav-actions" class="hidden flex gap-2">
-            <button onclick="switchPage('landing')" class="px-4 py-2 rounded-full text-sm font-medium text-[#1d1d1f] hover:bg-black/5 btn-press">หน้าแรก</button>
-            <button onclick="switchPage('app')" class="px-4 py-2 rounded-full text-sm font-medium text-white bg-[#1d1d1f] hover:bg-black/80 btn-press">กระดาน</button>
-            <button onclick="openModal('modal-guide')" class="px-4 py-2 rounded-full text-sm font-medium text-[#1d1d1f] hover:bg-black/5 btn-press">คู่มือ</button>
-            <button onclick="openModal('modal-history')" class="px-4 py-2 rounded-full text-sm font-medium text-[#1d1d1f] hover:bg-black/5 btn-press">ประวัติ</button>
+            <button onclick="switchPage('landing')" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 btn-press">หน้าแรก</button>
+            <button onclick="switchPage('app')" class="px-4 py-2 rounded-full text-sm font-medium text-[#1d1d1f] bg-white hover:bg-gray-100 btn-press shadow-sm">กระดาน</button>
+            <button onclick="openModal('modal-guide')" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 btn-press">คู่มือ</button>
+            <button onclick="openModal('modal-history')" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 btn-press">ประวัติ</button>
         </div>
 
         <div id="auth-section">
             <div id="g_id_onload" data-client_id="802485672001-m60k218jeo6ege6ceotavbfrl6nhl8k4.apps.googleusercontent.com" data-callback="handleSignIn"></div>
-            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline"></div>
+            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_black"></div>
         </div>
     </nav>
 
     <main class="max-w-[1200px] mx-auto px-4 md:px-8 min-h-screen relative overflow-hidden">
         
         <section id="page-landing" class="py-12 md:py-24 flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 page-enter absolute w-full inset-x-0">
-            
             <div class="relative w-64 md:w-96 flex-shrink-0" style="animation: floatCat 6s ease-in-out infinite;">
-                <div class="absolute inset-0 bg-gradient-to-tr from-indigo-300 to-purple-300 rounded-full blur-3xl opacity-40"></div>
-                
+                <div class="absolute inset-0 bg-gradient-to-tr from-indigo-400 to-purple-400 rounded-full blur-3xl opacity-30"></div>
                 <div class="absolute -top-4 -left-4 text-4xl animate-bounce" style="animation-delay: 1s;">✨</div>
                 <div class="absolute bottom-10 -right-2 text-5xl animate-pulse">🌟</div>
                 <div class="absolute top-1/3 -right-6 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-2xl shadow-lg border border-gray-100 text-xs font-bold text-indigo-600 rotate-12 z-20">Share it! 📦</div>
                 
-                <img src="photo/cat.png" alt="Mascot" class="relative z-10 w-full h-auto drop-shadow-2xl object-contain" onerror="this.src='https://via.placeholder.com/400x400/e0e7ff/4338ca?text=Cat+Mascot';">
+                <img src="photo/cat.png" alt="Mascot" class="relative z-10 w-full h-auto drop-shadow-2xl object-contain" onerror="this.src='https://via.placeholder.com/400x400/e0e7ff/4338ca?text=Add+cat.png';">
             </div>
 
             <div class="max-w-lg flex flex-col items-center md:items-start text-center md:text-left z-10">
@@ -102,7 +106,7 @@
                     </span>
                 </p>
                 
-                <button id="landing-guide-btn" onclick="openModal('modal-guide')" class="px-8 py-4 rounded-full text-sm font-bold text-[#1d1d1f] bg-white border border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all btn-press flex items-center gap-3 group">
+                <button id="landing-guide-btn" onclick="openModal('modal-guide')" class="px-8 py-4 rounded-full text-sm font-bold text-[#1d1d1f] bg-white border border-gray-200 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all btn-press flex items-center gap-3 group">
                     <span class="text-xl group-hover:rotate-12 transition-transform">📖</span> วิธีใช้งานระบบ
                 </button>
             </div>
@@ -110,32 +114,33 @@
 
         <section id="page-app" class="py-10 hidden absolute w-full inset-x-0">
             <div class="flex flex-col lg:flex-row gap-8 items-start">
+                
                 <div class="w-full lg:w-1/3 lg:sticky lg:top-24 z-10">
-                    <div class="glass-card p-6">
+                    <div class="glass-card p-6 border-t-4 border-t-indigo-500">
                         <h3 class="text-xl font-bold mb-5 flex items-center gap-2 text-[#1d1d1f]">ลงของส่งต่อ</h3>
                         <form id="post-form" onsubmit="handlePost(event)" class="space-y-4 relative">
                             <div class="relative group btn-press">
                                 <input type="file" id="itemImage" accept="image/*" class="hidden" onchange="previewImage(this)">
-                                <div onclick="document.getElementById('itemImage').click()" class="w-full h-40 bg-white/50 border border-gray-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white transition-all overflow-hidden relative">
+                                <div onclick="document.getElementById('itemImage').click()" class="w-full h-40 bg-gray-50/50 border border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all overflow-hidden relative">
                                     <div id="preview-placeholder" class="text-center text-[#86868b]">
-                                        <span class="text-2xl block mb-1">📸</span>
-                                        <span class="text-[11px] font-bold">เพิ่มรูปภาพ</span>
+                                        <span class="text-3xl block mb-2">📸</span>
+                                        <span class="text-[12px] font-semibold">คลิกเพื่อเพิ่มรูปภาพ</span>
                                     </div>
                                     <img id="image-preview-el" class="hidden w-full h-full object-cover">
-                                    <div id="remove-img-btn" onclick="removeImage(event)" class="hidden absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-rose-500 backdrop-blur-md">✕</div>
+                                    <div id="remove-img-btn" onclick="removeImage(event)" class="hidden absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-rose-500 backdrop-blur-md">✕</div>
                                 </div>
                             </div>
-                            <input type="text" id="itemName" required placeholder="ชื่อสิ่งของ" class="w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#1d1d1f] focus:bg-white transition-all">
-                            <textarea id="itemDesc" rows="2" placeholder="รายละเอียด (สภาพ, ตำหนิ)" class="w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#1d1d1f] focus:bg-white resize-none transition-all"></textarea>
-                            <select id="itemCat" class="w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#1d1d1f] focus:bg-white transition-all cursor-pointer">
+                            <input type="text" id="itemName" required placeholder="ชื่อสิ่งของ" class="w-full bg-white/60 border border-gray-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all">
+                            <textarea id="itemDesc" rows="2" placeholder="รายละเอียด (สภาพ, ตำหนิ)" class="w-full bg-white/60 border border-gray-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 resize-none transition-all"></textarea>
+                            <select id="itemCat" class="w-full bg-white/60 border border-gray-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all cursor-pointer">
                                 <option value="📚 หนังสือ / ชีท">📚 หนังสือ / ชีท</option>
                                 <option value="👕 เครื่องแต่งกาย">👕 เครื่องแต่งกาย</option>
                                 <option value="✏️ อุปกรณ์การเรียน">✏️ อุปกรณ์การเรียน</option>
                                 <option value="💻 อุปกรณ์ไอที">💻 อุปกรณ์ไอที</option>
                                 <option value="📦 อื่นๆ">📦 อื่นๆ</option>
                             </select>
-                            <input type="text" id="itemContact" required placeholder="ข้อมูลติดต่อ (Line, FB)" class="w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#1d1d1f] focus:bg-white transition-all">
-                            <button type="submit" class="w-full bg-[#1d1d1f] text-white font-medium py-3.5 rounded-xl hover:bg-black transition-all btn-press mt-2">ประกาศส่งต่อ</button>
+                            <input type="text" id="itemContact" required placeholder="ข้อมูลติดต่อ (Line, FB)" class="w-full bg-white/60 border border-gray-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all">
+                            <button type="submit" class="w-full bg-gradient-to-r from-gray-900 to-[#1d1d1f] text-white font-medium py-4 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all btn-press mt-2">ประกาศส่งต่อ</button>
                         </form>
                     </div>
                 </div>
@@ -175,10 +180,10 @@
                 <button onclick="switchGuideTab('giver')" id="gtab-giver" class="pb-2 text-[#1d1d1f] font-medium border-b-[2px] border-[#1d1d1f] text-sm btn-press transition-colors">คนให้</button>
                 <button onclick="switchGuideTab('taker')" id="gtab-taker" class="pb-2 text-[#86868b] font-medium border-b-[2px] border-transparent hover:text-[#1d1d1f] text-sm btn-press transition-colors">คนรับ</button>
             </div>
-            <div class="relative bg-black/5 rounded-2xl flex items-center justify-center h-[40vh] md:h-[50vh] overflow-hidden group">
-                <button onclick="prevSlide()" class="absolute left-2 md:left-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full shadow-sm flex items-center justify-center hover:bg-white z-10 font-bold text-[#1d1d1f] btn-press">❮</button>
+            <div class="relative bg-gray-100/50 rounded-2xl flex items-center justify-center h-[40vh] md:h-[50vh] overflow-hidden group">
+                <button onclick="prevSlide()" class="absolute left-2 md:left-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full shadow-md flex items-center justify-center hover:bg-white z-10 font-bold text-[#1d1d1f] btn-press">❮</button>
                 <img id="guide-slider-img" src="" alt="Guide" class="max-w-full max-h-full object-contain p-2 transition-opacity duration-300">
-                <button onclick="nextSlide()" class="absolute right-2 md:right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full shadow-sm flex items-center justify-center hover:bg-white z-10 font-bold text-[#1d1d1f] btn-press">❯</button>
+                <button onclick="nextSlide()" class="absolute right-2 md:right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full shadow-md flex items-center justify-center hover:bg-white z-10 font-bold text-[#1d1d1f] btn-press">❯</button>
                 <div class="absolute bottom-4 bg-[#1d1d1f]/80 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-medium shadow-sm" id="slide-counter">1 / 4</div>
             </div>
         </div>
